@@ -5,6 +5,6 @@ CREATE TABLE account (
     email varchar(255)            not null,
     password varchar(255)         not null,
     gender varchar(255)           not null,
-    created_at varchar(255)       not null,
-    updated_at varchar(255)       not null
+    created_at TIMESTAMP          not null,
+    updated_at TIMESTAMP          not null
 )

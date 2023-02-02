@@ -32,7 +32,7 @@ public class Account extends Audit {
   private String email;
   private String password;
 
-  @Enumerated(EnumType.ORDINAL)
+  @Enumerated(EnumType.STRING)
   private Gender gender;
 
 }
