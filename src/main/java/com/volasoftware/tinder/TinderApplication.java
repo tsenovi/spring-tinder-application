@@ -8,8 +8,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class TinderApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TinderApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(TinderApplication.class, args);
+  }
 
 }
