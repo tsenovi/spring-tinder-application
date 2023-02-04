@@ -8,7 +8,7 @@ public interface AccountService {
 
   List<Account> getAll();
 
-  Account save(Account account);
+  Account save(AccountRegisterDTO account);
 
   Optional<Account> findByEmail(String email);
 }

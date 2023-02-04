@@ -5,7 +5,6 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.time.OffsetDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
