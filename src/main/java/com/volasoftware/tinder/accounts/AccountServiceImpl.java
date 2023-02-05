@@ -25,12 +25,7 @@ public class AccountServiceImpl implements AccountService {
     account.setLastName(accountRegisterDTO.getLastName());
     account.setEmail(accountRegisterDTO.getEmail());
     account.setPassword(accountRegisterDTO.getPassword());
-    if(accountRegisterDTO.getGender() == Gender.FEMALE.toString()){
-      account.setGender(Gender.FEMALE);
-    } else {
-      account.setGender(Gender.MALE);
-    }
-
+    account.setGender(accountRegisterDTO.getGender());
     return accountRepository.save(account);
   }
 

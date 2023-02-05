@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.accounts;
 
+import com.volasoftware.tinder.constants.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,6 @@ public class AccountRegisterDTO {
   private String lastName;
   private String email;
   private String password;
-  private String gender;
+  private Gender gender;
 
 }
