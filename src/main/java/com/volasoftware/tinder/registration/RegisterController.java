@@ -1,7 +1,7 @@
 package com.volasoftware.tinder.registration;
 
 import com.volasoftware.tinder.accounts.Account;
-import com.volasoftware.tinder.dto.RegisterDTO;
+import com.volasoftware.tinder.dtos.RegisterDTO;
 import com.volasoftware.tinder.accounts.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

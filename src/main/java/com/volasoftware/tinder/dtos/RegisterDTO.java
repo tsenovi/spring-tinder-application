@@ -1,4 +1,4 @@
-package com.volasoftware.tinder.dto;
+package com.volasoftware.tinder.dtos;
 
 import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.constraints.Password;
