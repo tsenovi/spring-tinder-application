@@ -1,7 +1,7 @@
 package com.volasoftware.tinder.registration;
 
 import com.volasoftware.tinder.accounts.Account;
-import com.volasoftware.tinder.accounts.AccountRegisterDTO;
+import com.volasoftware.tinder.dto.RegisterDTO;
 import com.volasoftware.tinder.accounts.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,9 @@ public class RegisterController {
   @PostMapping(value = "/api/v1/users/register",
       consumes = {"application/xml","application/json"})
   public ResponseEntity<Account> registerNewAccount(
-      @RequestBody AccountRegisterDTO accountRegisterDTO) {
+      @RequestBody RegisterDTO registerDTO) {
 
-    return new ResponseEntity<>(accountService.save(accountRegisterDTO), HttpStatus.CREATED);
+    return new ResponseEntity<>(accountService.save(registerDTO), HttpStatus.CREATED);
   }
 
 }

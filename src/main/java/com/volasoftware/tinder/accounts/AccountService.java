@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.accounts;
 
+import com.volasoftware.tinder.dto.RegisterDTO;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,7 +9,7 @@ public interface AccountService {
 
   List<Account> getAll();
 
-  Account save(AccountRegisterDTO account);
+  Account save(RegisterDTO account);
 
   Optional<Account> findByEmail(String email);
 }

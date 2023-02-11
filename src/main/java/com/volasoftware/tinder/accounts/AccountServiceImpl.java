@@ -1,6 +1,6 @@
 package com.volasoftware.tinder.accounts;
 
-import com.volasoftware.tinder.constants.Gender;
+import com.volasoftware.tinder.dto.RegisterDTO;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +19,13 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public Account save(AccountRegisterDTO accountRegisterDTO) {
+  public Account save(RegisterDTO registerDTO) {
     Account account = new Account();
-    account.setFirstName(accountRegisterDTO.getFirstName());
-    account.setLastName(accountRegisterDTO.getLastName());
-    account.setEmail(accountRegisterDTO.getEmail());
-    account.setPassword(accountRegisterDTO.getPassword());
-    account.setGender(accountRegisterDTO.getGender());
+    account.setFirstName(registerDTO.getFirstName());
+    account.setLastName(registerDTO.getLastName());
+    account.setEmail(registerDTO.getEmail());
+    account.setPassword(registerDTO.getPassword());
+    account.setGender(registerDTO.getGender());
     return accountRepository.save(account);
   }
 
