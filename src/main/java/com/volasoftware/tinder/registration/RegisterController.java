@@ -1,6 +1,5 @@
 package com.volasoftware.tinder.registration;
 
-import com.volasoftware.tinder.accounts.Account;
 import com.volasoftware.tinder.dtos.RegisterDTO;
 import com.volasoftware.tinder.accounts.AccountService;
 import com.volasoftware.tinder.responses.RegisterResponse;

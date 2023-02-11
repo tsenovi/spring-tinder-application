@@ -4,6 +4,8 @@ package com.volasoftware.tinder.dtos;
 import com.volasoftware.tinder.constants.Gender;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,5 +28,6 @@ public class AccountDTO {
   private String email;
 
   @ApiModelProperty(value = "Gender", example = "MALE", required = true)
+  @Enumerated(EnumType.STRING)
   private Gender gender;
 }
