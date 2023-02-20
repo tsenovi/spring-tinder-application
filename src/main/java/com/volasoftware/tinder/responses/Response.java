@@ -1,23 +1,23 @@
 package com.volasoftware.tinder.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.volasoftware.tinder.dtos.AccountDTO;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RegisterResponse {
+public class Response<T> {
 
+  private HttpStatus status;
   private String message;
   private Instant timestamp;
-
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private AccountDTO accountDTO;
+  private T data;
 
 }
