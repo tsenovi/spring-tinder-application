@@ -2,15 +2,12 @@ package com.volasoftware.tinder.registration;
 
 import com.volasoftware.tinder.dtos.RegisterDTO;
 import com.volasoftware.tinder.accounts.AccountService;
-import com.volasoftware.tinder.responses.RegisterResponse;
+import com.volasoftware.tinder.responses.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,17 +24,10 @@ public class RegisterController {
   @ApiOperation(value = "Register new account")
   @PostMapping(value = "/register",
       consumes = {"application/xml", "application/json"})
-  public ResponseEntity<RegisterResponse> registerNewAccount(
+  public Response<?> registerNewAccount(
       @ApiParam(value = "Registration details", required = true)
       @RequestBody RegisterDTO registerDTO) {
 
-    RegisterResponse response = RegisterResponse.builder()
-        .accountDTO(accountService.save(registerDTO))
-        .message("Register Complete!")
-        .timestamp(Instant.now())
-        .build();
-
-    return new ResponseEntity<>(response, HttpStatus.CREATED);
+    return accountService.save(registerDTO);
   }
-
 }
