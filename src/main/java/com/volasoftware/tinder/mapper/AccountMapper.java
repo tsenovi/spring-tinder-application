@@ -1,6 +1,6 @@
 package com.volasoftware.tinder.mapper;
 
-import com.volasoftware.tinder.accounts.Account;
+import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.dtos.AccountDTO;
 import com.volasoftware.tinder.dtos.RegisterDTO;
 import org.mapstruct.Mapper;

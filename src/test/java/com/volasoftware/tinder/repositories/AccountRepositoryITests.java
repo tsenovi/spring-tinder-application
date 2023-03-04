@@ -1,8 +1,9 @@
-package com.volasoftware.tinder.accounts;
+package com.volasoftware.tinder.repositories;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.volasoftware.tinder.constants.Gender;
+import com.volasoftware.tinder.models.Account;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;

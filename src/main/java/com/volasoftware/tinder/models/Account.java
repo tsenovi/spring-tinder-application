@@ -1,10 +1,8 @@
-package com.volasoftware.tinder.accounts;
+package com.volasoftware.tinder.models;
 
-import com.volasoftware.tinder.audits.Audit;
 import com.volasoftware.tinder.constants.Gender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;

@@ -1,4 +1,4 @@
-package com.volasoftware.tinder.audits;
+package com.volasoftware.tinder.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
