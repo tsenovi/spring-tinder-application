@@ -24,7 +24,7 @@ public class ResponseDTO<T> {
   @ApiModelProperty(value = "Message", example = "OK")
   private String message;
 
-  @ApiModelProperty(value = "Timestamp of the error", example = "2021-15-08 14:32:17")
+  @ApiModelProperty(value = "Timestamp", example = "2021-15-08 14:32:17")
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
   private LocalDateTime timestamp;
 
