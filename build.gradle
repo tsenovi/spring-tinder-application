@@ -33,7 +33,7 @@ dependencies {
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	implementation 'org.passay:passay:1.6.2'
 	testImplementation 'junit:junit:4.13.2'
-    compileOnly group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
+	implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
 	compileOnly group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
