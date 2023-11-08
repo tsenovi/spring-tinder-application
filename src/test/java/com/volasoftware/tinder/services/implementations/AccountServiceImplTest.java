@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.dtos.AccountDTO;
 import com.volasoftware.tinder.dtos.RegisterDTO;
-import com.volasoftware.tinder.dtos.ResponseDTO;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
@@ -71,9 +70,9 @@ class AccountServiceImplTest {
     ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
     when(accountRepository.save(captor.capture())).thenReturn(account);
 
-    ResponseDTO<?> responseDTO = accountService.save(registerDTO);
+    AccountDTO result = accountService.save(registerDTO);
 
-    assertEquals(responseDTO.getStatus(), HttpStatus.CREATED);
+    assertEquals(result.getEmail(), registerDTO.getEmail());
   }
 
   @Test
