@@ -1,6 +1,8 @@
 package com.volasoftware.tinder.controllers;
 
+import com.volasoftware.tinder.dtos.AccountDTO;
 import com.volasoftware.tinder.dtos.RegisterDTO;
+import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +29,7 @@ public class RegisterController {
   @ApiOperation(value = "Register new account")
   @ApiResponses(
       value = {
-          @ApiResponse(responseCode = "200", description = "Successful operation"),
+          @ApiResponse(responseCode = "200", description = "Successfully added data"),
           @ApiResponse(responseCode = "400", description = "Email is already taken"),
           @ApiResponse(responseCode = "404", description = "Account not found")
       })
@@ -37,6 +39,7 @@ public class RegisterController {
       @ApiParam(value = "Registration details", required = true)
       @RequestBody RegisterDTO registerDTO) {
 
-    return new ResponseEntity<>(accountService.save(registerDTO), HttpStatus.CREATED);
+    AccountDTO result = accountService.save(registerDTO);
+    return ResponseHandler.generateResponse("Successfully added data!", HttpStatus.OK, result);
   }
 }
