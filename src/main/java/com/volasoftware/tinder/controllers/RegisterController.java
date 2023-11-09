@@ -7,6 +7,9 @@ import com.volasoftware.tinder.services.contracts.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Example;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +32,14 @@ public class RegisterController {
   @ApiOperation(value = "Register new account")
   @ApiResponses(
       value = {
-          @ApiResponse(responseCode = "200", description = "Successfully added data"),
-          @ApiResponse(responseCode = "400", description = "Email is already taken"),
-          @ApiResponse(responseCode = "404", description = "Account not found")
+          @ApiResponse(
+              responseCode = "200",
+              description = "Successfully added data"),
+          @ApiResponse(
+              responseCode = "400",
+              description = "Email is already taken"),
+          @ApiResponse(
+              responseCode = "404", description = "Account not found")
       })
   @PostMapping(value = "/register",
       consumes = {"application/xml", "application/json"})
