@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,15 +15,13 @@ import com.volasoftware.tinder.dtos.RegisterDTO;
 import com.volasoftware.tinder.services.contracts.AccountService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(RegisterController.class)
-public class RegistrationControllerIntegrationTests {
+public class RegisterControllerTest {
 
   @Autowired
   private RegisterController registerController;
@@ -34,11 +31,6 @@ public class RegistrationControllerIntegrationTests {
 
   @MockBean
   private AccountService accountService;
-
-  @Test
-  void contextLoads() {
-    assertThat(registerController).isNotNull();
-  }
 
   @Test
   void givenRegistrationDetailsWhenEmailNotExistThenCreatedAccount() throws Exception {
