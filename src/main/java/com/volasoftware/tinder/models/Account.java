@@ -23,9 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Account extends Audit implements UserDetails {
@@ -46,7 +44,6 @@ public class Account extends Audit implements UserDetails {
 
   @Enumerated(EnumType.STRING)
   private Role role;
-
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
