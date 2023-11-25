@@ -10,11 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JwtServiceImpl {
+@RequiredArgsConstructor
+public class JwtService {
 
   private static final String SECRET_KEY = "f0e9d8c7b6a59483828190817f6e5d4c3b2a19180706f5e4d3c2b1a09080706050403020100";
   private static final int HOURS = 48;

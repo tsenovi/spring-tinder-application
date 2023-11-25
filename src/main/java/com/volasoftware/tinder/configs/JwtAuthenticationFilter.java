@@ -1,6 +1,6 @@
 package com.volasoftware.tinder.configs;
 
-import com.volasoftware.tinder.services.implementations.JwtServiceImpl;
+import com.volasoftware.tinder.services.implementations.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static final int TOKEN_POSITION = 7;
-  private final JwtServiceImpl jwtServiceImpl;
+  private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
 
 
@@ -41,10 +41,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     jwt = authHeader.substring(TOKEN_POSITION);
-    userName = jwtServiceImpl.extractUserName(jwt);
+    userName = jwtService.extractUserName(jwt);
     if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
       UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
-      if (jwtServiceImpl.isTokenValid(jwt, userDetails)) {
+      if (jwtService.isTokenValid(jwt, userDetails)) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
             userDetails,
             null,

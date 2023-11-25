@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.volasoftware.tinder")
+@EnableJpaRepositories(basePackages = "com.volasoftware.tinder.repositories")
 public class PersistenceConfig {
+
 }
