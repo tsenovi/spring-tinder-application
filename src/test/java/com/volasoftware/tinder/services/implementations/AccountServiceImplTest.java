@@ -29,7 +29,6 @@ import org.springframework.test.context.TestPropertySource;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-@TestPropertySource(locations = "classpath:test.properties")
 class AccountServiceImplTest {
 
     @Mock
