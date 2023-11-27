@@ -1,6 +1,7 @@
 package com.volasoftware.tinder.models;
 
 import com.volasoftware.tinder.constants.Gender;
+import com.volasoftware.tinder.constants.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
