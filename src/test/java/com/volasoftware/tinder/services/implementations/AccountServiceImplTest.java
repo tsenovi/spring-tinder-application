@@ -6,146 +6,143 @@ import static org.mockito.Mockito.when;
 
 import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.dtos.AccountDTO;
-import com.volasoftware.tinder.dtos.RegisterDTO;
+import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
-import com.volasoftware.tinder.services.contracts.AccountService;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class AccountServiceImplTest {
 
-  @Mock
-  private AccountRepository accountRepository;
-  @Autowired
-  private AccountService accountService;
+    @Mock
+    private AccountRepository accountRepository;
+    @Autowired
+    @InjectMocks
+    private AccountServiceImpl accountService;
 
-  @BeforeEach
-  void init() {
-    accountService = new AccountServiceImpl(accountRepository);
-  }
+    @Test
+    void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
+        List<Account> accounts = getAccounts();
+        given(accountRepository.findAll()).willReturn(accounts);
+        List<AccountDTO> result = accountService.getAll();
 
+        assertEquals(2, result.size());
+    }
 
-  @Test
-  void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
-    List<Account> accounts = getAccounts();
-    given(accountRepository.findAll()).willReturn(accounts);
+    @Test
+    void testGettingAllAccountsWhenGivenListOfAccountsThenExpectedListIsNotEmpty() {
+        List<Account> accounts = getAccounts();
+        given(accountRepository.findAll()).willReturn(accounts);
 
-    List<AccountDTO> result = accountService.getAll();
+        List<AccountDTO> result = accountService.getAll();
 
-    assertEquals(2, result.size());
-  }
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+    }
 
-  @Test
-  void testGettingAllAccountsWhenGivenListOfAccountsThenExpectedListIsNotEmpty() {
-    List<Account> accounts = getAccounts();
-    given(accountRepository.findAll()).willReturn(accounts);
+    @Test
+    void testCreatingAccountWhenEmailIsNotTakenThenCreationIsSuccessful() {
+        RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com", "password",
+                Gender.MALE);
 
-    List<AccountDTO> result = accountService.getAll();
+        Account account = AccountMapper.INSTANCE.registerRequestToAccount(registerRequest);
 
-    assertNotNull(result);
-    assertTrue(result.size() > 0);
-  }
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+        when(accountRepository.save(captor.capture())).thenReturn(account);
 
-  @Test
-  void testCreatingAccountWhenEmailIsNotTakenThenCreationIsSuccessful() {
-    RegisterDTO registerDTO = getRegisterDTO("alex", "t", "alex@gmail.com", "password",
-        Gender.MALE);
+        AccountDTO result = accountService.register(registerRequest);
 
-    Account account = AccountMapper.INSTANCE.registerDtoToAccount(registerDTO);
+        assertEquals(result.getEmail(), registerRequest.getEmail());
+    }
 
-    ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-    when(accountRepository.save(captor.capture())).thenReturn(account);
+    @Test
+    void testCreatingAccountWhenEmailIsTakenThenExceptionIsThrown() {
+        RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com", "password",
+                Gender.MALE);
 
-    AccountDTO result = accountService.save(registerDTO);
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+        when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException());
 
-    assertEquals(result.getEmail(), registerDTO.getEmail());
-  }
+        Exception exception = assertThrows(EmailIsTakenException.class,
+                () -> accountService.register(registerRequest));
 
-  @Test
-  void testCreatingAccountWhenEmailIsTakenThenExceptionIsThrown() {
-    RegisterDTO registerDTO = getRegisterDTO("alex", "t", "alex@gmail.com", "password",
-        Gender.MALE);
+        String expectedMessage = "Email is already taken";
+        String actualMessage = exception.getMessage();
 
-    ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-    when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException());
+        assertEquals(actualMessage, expectedMessage);
+    }
 
-    Exception exception = assertThrows(EmailIsTakenException.class,
-        () -> accountService.save(registerDTO));
+    @Test
+    void testGettingAccountByEmailWhenGivenEmailExistsThenReturnActualAccount() {
+        Account account = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
+        String email = "alex@gmail.com";
+        given(accountRepository.findOneByEmail(email)).willReturn(Optional.of(account));
 
-    String expectedMessage = "Email is already taken";
-    String actualMessage = exception.getMessage();
+        Account accountFoundByEmail = accountService.getAccountByEmail(email);
 
-    assertEquals(actualMessage, expectedMessage);
-  }
+        assertEquals(email, accountFoundByEmail.getEmail());
+    }
 
-  @Test
-  void testGettingAccountByEmailWhenGivenEmailExistsThenReturnActualAccount() {
-    Account account = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
-    String email = "alex@gmail.com";
-    given(accountRepository.findOneByEmail(email)).willReturn(Optional.of(account));
+    @Test
+    void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
+        String email = "phil@gmail.com";
+        given(accountRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException());
 
-    Account accountFoundByEmail = accountService.getAccountByEmail(email);
+        Exception exception = assertThrows(AccountNotFoundException.class,
+                () -> accountService.getAccountByEmail(email));
 
-    assertEquals(email, accountFoundByEmail.getEmail());
-  }
+        String expectedMessage = "Account was not found";
+        String actualMessage = exception.getMessage();
 
-  @Test
-  void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
-    String email = "phil@gmail.com";
-    given(accountRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException());
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
 
-    Exception exception = assertThrows(AccountNotFoundException.class,
-        () -> accountService.getAccountByEmail(email));
+    private List<Account> getAccounts() {
+        Account account1 = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
 
-    String expectedMessage = "Account was not found";
-    String actualMessage = exception.getMessage();
+        Account account2 = getAccount("toni", "t", "toni@gmail.com", "password", Gender.FEMALE);
 
-    assertTrue(actualMessage.contains(expectedMessage));
-  }
+        return Arrays.asList(account1, account2);
+    }
 
-  private List<Account> getAccounts() {
-    Account account1 = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
+    private Account getAccount(String firstName, String lastName, String email, String password,
+                               Gender gender) {
+        Account account = new Account();
+        account.setFirstName(firstName);
+        account.setLastName(lastName);
+        account.setEmail(email);
+        account.setPassword(password);
+        account.setGender(gender);
 
-    Account account2 = getAccount("toni", "t", "toni@gmail.com", "password", Gender.FEMALE);
+        return account;
+    }
 
-    return Arrays.asList(account1, account2);
-  }
+    private RegisterRequest getRegisterRequest(String firstName, String lastName, String email,
+                                               String password, Gender gender) {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setFirstName(firstName);
+        registerRequest.setLastName(lastName);
+        registerRequest.setEmail(email);
+        registerRequest.setPassword(password);
+        registerRequest.setGender(gender);
 
-  private Account getAccount(String firstName, String lastName, String email, String password,
-      Gender gender) {
-    Account account = new Account();
-    account.setFirstName(firstName);
-    account.setLastName(lastName);
-    account.setEmail(email);
-    account.setPassword(password);
-    account.setGender(gender);
-
-    return account;
-  }
-
-  private RegisterDTO getRegisterDTO(String firstName, String lastName, String email,
-      String password, Gender gender) {
-    RegisterDTO registerDTO = new RegisterDTO();
-    registerDTO.setFirstName(firstName);
-    registerDTO.setLastName(lastName);
-    registerDTO.setEmail(email);
-    registerDTO.setPassword(password);
-    registerDTO.setGender(gender);
-
-    return registerDTO;
-  }
+        return registerRequest;
+    }
 }

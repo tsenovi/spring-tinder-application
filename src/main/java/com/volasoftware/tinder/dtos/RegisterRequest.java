@@ -22,7 +22,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @ApiModel(value = "Register model", description = "Model for registration process")
-public class RegisterDTO {
+public class RegisterRequest {
 
   @ApiModelProperty(value = "First name", required = true)
   @Size(min = 2, max = 50)
