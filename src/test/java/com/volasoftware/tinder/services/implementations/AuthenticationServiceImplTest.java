@@ -28,13 +28,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-class AccountServiceImplTest {
+class AuthenticationServiceImplTest {
 
     @Mock
     private AccountRepository accountRepository;
     @Autowired
     @InjectMocks
-    private AccountServiceImpl accountService;
+    private AuthenticationServiceImpl accountService;
 
     @Test
     void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {

@@ -6,7 +6,7 @@ import com.volasoftware.tinder.dtos.RegisterRequest;
 import java.util.List;
 
 
-public interface AccountService {
+public interface AuthenticationService {
 
   List<AccountDto> getAll();
 
