@@ -1,6 +1,7 @@
 package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
+import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
 import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import org.springframework.http.HttpStatus;
@@ -23,5 +24,11 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ResponseEntity<?> handleBadRequestException(RuntimeException exception) {
     return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+  }
+
+  @ExceptionHandler({EmailIsNotValidException.class})
+  @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+  public ResponseEntity<?> handleNotAcceptableException(RuntimeException exception) {
+    return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE, null);
   }
 }

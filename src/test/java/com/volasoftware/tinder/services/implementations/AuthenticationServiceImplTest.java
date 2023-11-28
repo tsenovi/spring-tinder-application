@@ -77,7 +77,7 @@ class AuthenticationServiceImplTest {
                 Gender.MALE);
 
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-        when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException());
+        when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException("Email is already taken"));
 
         Exception exception = assertThrows(EmailIsTakenException.class,
                 () -> accountService.register(registerRequest));
@@ -102,7 +102,7 @@ class AuthenticationServiceImplTest {
     @Test
     void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
         String email = "phil@gmail.com";
-        given(accountRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException());
+        given(accountRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException("Account was not found"));
 
         Exception exception = assertThrows(AccountNotFoundException.class,
                 () -> accountService.getAccountByEmail(email));

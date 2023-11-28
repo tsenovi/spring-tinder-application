@@ -2,6 +2,7 @@ package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.constants.Role;
 import com.volasoftware.tinder.dtos.AccountDto;
+import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.dtos.RegisterRequest;
@@ -13,6 +14,7 @@ import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import java.util.List;
 import java.util.Optional;
 
+import com.volasoftware.tinder.validators.EmailValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +30,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private EmailValidator emailValidator;
+
     @Override
     public List<AccountDto> getAll() {
         List<Account> accounts = accountRepository.findAll();
@@ -38,6 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AccountDto register(RegisterRequest registerRequest) {
         checkIfEmailIsTaken(registerRequest.getEmail());
+        checkIfEmailIsValid(registerRequest.getEmail());
 
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         Account account = AccountMapper.INSTANCE.registerRequestToAccount(registerRequest);
@@ -47,15 +53,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AccountMapper.INSTANCE.accountToAccountDto(savedAccount);
     }
 
+
     @Override
     public Account getAccountByEmail(String email) {
-        return accountRepository.findOneByEmail(email).orElseThrow(AccountNotFoundException::new);
+        Optional<Account> account = accountRepository.findOneByEmail(email);
+        if (account.isPresent()) return account.get();
+        else throw new AccountNotFoundException("Account not found!");
+
     }
 
     private void checkIfEmailIsTaken(String email) {
         Optional<Account> optionalAccount = accountRepository.findOneByEmail(email);
         if (optionalAccount.isPresent()) {
-            throw new EmailIsTakenException();
+            throw new EmailIsTakenException("Email is already taken!");
+        }
+    }
+
+    private void checkIfEmailIsValid(String email) {
+        boolean isValidEmail = emailValidator.test(email);
+
+        if (!isValidEmail) {
+            throw new EmailIsNotValidException("Email is not valid!");
         }
     }
 }
