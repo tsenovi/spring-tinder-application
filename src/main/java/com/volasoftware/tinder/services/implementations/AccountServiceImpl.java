@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.services.implementations;
 
+import com.volasoftware.tinder.constants.Role;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.dtos.AccountDTO;
@@ -37,8 +38,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDTO register(RegisterRequest registerRequest) {
         checkIfEmailIsTaken(registerRequest.getEmail());
+
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         Account account = AccountMapper.INSTANCE.registerRequestToAccount(registerRequest);
+        account.setRole(Role.USER);
         Account savedAccount = accountRepository.save(account);
 
         return AccountMapper.INSTANCE.accountToAccountDto(savedAccount);
