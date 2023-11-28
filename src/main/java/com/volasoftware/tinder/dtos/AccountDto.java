@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @ApiModel(description = "Public account information")
-public class AccountDTO {
+public class AccountDto {
 
   @ApiModelProperty(value = "First name", example = "Ivan", required = true)
   private String firstName;

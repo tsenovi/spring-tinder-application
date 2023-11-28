@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.volasoftware.tinder.constants.Gender;
-import com.volasoftware.tinder.dtos.AccountDTO;
+import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.services.contracts.AccountService;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,14 +46,14 @@ public class AuthenticationControllerTest {
                 "john@gmail.com",
                 "password",
                 Gender.MALE);
-        AccountDTO accountDTO = new AccountDTO(
+        AccountDto accountDto = new AccountDto(
                 "John",
                 "Doe",
                 "john@gmail.com",
                 Gender.MALE);
 
         // When
-        given(accountService.register(any(RegisterRequest.class))).willReturn(accountDTO);
+        given(accountService.register(any(RegisterRequest.class))).willReturn(accountDto);
 
         // Then
         mockMvc
