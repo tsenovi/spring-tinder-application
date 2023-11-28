@@ -28,8 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class Account extends Audit implements UserDetails {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_gen")
-  @SequenceGenerator(name = "account_gen", sequenceName = "account_seq", allocationSize = 1)
+  @GeneratedValue
   @Column(name = "id", nullable = false)
   private Long id;
 
