@@ -31,12 +31,14 @@ public class AuthenticationController {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Successfully added data"),
+                            description = "Successfully added data!"),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Email is already taken"),
+                            description = "Email is already taken!"),
                     @ApiResponse(
-                            responseCode = "404", description = "Account not found")
+                            responseCode = "404", description = "Account not found!"),
+                    @ApiResponse(
+                            responseCode = "406", description = "Email not valid!")
             })
     @PostMapping(value = "/register",
             consumes = {"application/xml", "application/json"})

@@ -4,6 +4,7 @@ import com.volasoftware.tinder.constants.Role;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
 import com.volasoftware.tinder.models.Account;
+import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
@@ -11,10 +12,13 @@ import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import com.volasoftware.tinder.validators.EmailValidator;
+import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,15 +27,21 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
-    @Autowired
-    private AccountRepository accountRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private JwtService jwtService;
 
     @Autowired
+    private VerificationTokenService verificationTokenService;
+
+    @Autowired
     private EmailValidator emailValidator;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Override
     public List<AccountDto> getAll() {
@@ -42,13 +52,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AccountDto register(RegisterRequest registerRequest) {
-        checkIfEmailIsTaken(registerRequest.getEmail());
         checkIfEmailIsValid(registerRequest.getEmail());
+        checkIfEmailIsTaken(registerRequest.getEmail());
 
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         Account account = AccountMapper.INSTANCE.registerRequestToAccount(registerRequest);
         account.setRole(Role.USER);
+        account.setLocked(false);
+        account.setVerified(false);
         Account savedAccount = accountRepository.save(account);
+
+        verificationTokenService.register(savedAccount);
 
         return AccountMapper.INSTANCE.accountToAccountDto(savedAccount);
     }
@@ -56,10 +70,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public Account getAccountByEmail(String email) {
-        Optional<Account> account = accountRepository.findOneByEmail(email);
-        if (account.isPresent()) return account.get();
-        else throw new AccountNotFoundException("Account not found!");
-
+        return accountRepository.findOneByEmail(email)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found!"));
     }
 
     private void checkIfEmailIsTaken(String email) {

@@ -5,6 +5,8 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,11 +29,11 @@ public abstract class Audit {
   @Column(name = "created_at", nullable = false, updatable = false)
   @CreatedDate
   @Temporal(TemporalType.TIMESTAMP)
-  private Date createdDate;
+  private LocalDateTime createdDate;
 
   @Column(name = "updated_at")
   @LastModifiedDate
   @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModifiedDate;
+  private LocalDateTime lastModifiedDate;
 
 }
