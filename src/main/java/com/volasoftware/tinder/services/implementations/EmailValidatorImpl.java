@@ -1,13 +1,12 @@
 package com.volasoftware.tinder.services.implementations;
 
+import com.volasoftware.tinder.services.contracts.EmailValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Predicate;
-
 @Service
 @RequiredArgsConstructor
-public class EmailValidator implements Predicate<String> {
+public class EmailValidatorImpl implements EmailValidator {
     @Override
     public boolean test(String string) {
 

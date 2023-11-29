@@ -14,6 +14,8 @@ import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import java.util.List;
 import java.util.Optional;
 
+import com.volasoftware.tinder.services.contracts.EmailValidator;
+import com.volasoftware.tinder.services.contracts.JwtService;
 import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
