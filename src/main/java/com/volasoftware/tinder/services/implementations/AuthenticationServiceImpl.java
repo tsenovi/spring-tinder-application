@@ -4,7 +4,6 @@ import com.volasoftware.tinder.constants.Role;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
 import com.volasoftware.tinder.models.Account;
-import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
@@ -12,11 +11,8 @@ import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +58,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setVerified(false);
         Account savedAccount = accountRepository.save(account);
 
-        verificationTokenService.register(savedAccount);
+        verificationTokenService.generateToken(savedAccount);
 
         return AccountMapper.INSTANCE.accountToAccountDto(savedAccount);
     }

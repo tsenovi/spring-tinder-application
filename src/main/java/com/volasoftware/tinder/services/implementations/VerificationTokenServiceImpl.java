@@ -3,6 +3,7 @@ package com.volasoftware.tinder.services.implementations;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.VerificationTokenRepository;
+import com.volasoftware.tinder.services.contracts.EmailService;
 import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,11 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
-    public void register(Account account){
+    public void generateToken(Account account) {
 
         String uuidToken = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken(
@@ -32,6 +36,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         );
 
         verificationTokenRepository.save(verificationToken);
+
+        emailService.send(account.getEmail(), account.getFirstName(), uuidToken);
     }
 
 }
