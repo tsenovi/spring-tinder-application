@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,5 +47,27 @@ public class AuthenticationController {
                 "Successfully added data!",
                 HttpStatus.OK,
                 authenticationService.register(registerRequest));
+    }
+
+    @ApiOperation(value = "Verify account")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully verified account!"),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Token expired or not exist!")
+            })
+    @GetMapping(value = "/verify",
+            consumes = {"application/xml", "application/json"})
+    public ResponseEntity<?> verify(
+            @ApiParam(value = "Verify email", required = true)
+            @RequestParam("token") String token) {
+
+        return ResponseHandler.generateResponse(
+                "Successfully verified account!",
+                HttpStatus.OK,
+                authenticationService.verify(token));
     }
 }

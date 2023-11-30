@@ -67,9 +67,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     @Override
-    public Account getAccountByEmail(String email) {
-        return accountRepository.findOneByEmail(email)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found!"));
+    public AccountDto getAccountByEmail(String email) {
+        return AccountMapper.INSTANCE.accountToAccountDto(
+                accountRepository.findOneByEmail(email)
+                        .orElseThrow(
+                                () -> new AccountNotFoundException("Account not found!")
+                        )
+        );
+
+    }
+
+    @Override
+    public String verify(String token) {
+        AccountDto accountDto = verificationTokenService.verifyToken(token);
+
+        //TODO enable the account!
+
+        return "verified";
     }
 
     private void checkIfEmailIsTaken(String email) {

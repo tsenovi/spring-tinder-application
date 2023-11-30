@@ -94,7 +94,7 @@ class AuthenticationServiceImplTest {
         String email = "alex@gmail.com";
         given(accountRepository.findOneByEmail(email)).willReturn(Optional.of(account));
 
-        Account accountFoundByEmail = accountService.getAccountByEmail(email);
+        AccountDto accountFoundByEmail = accountService.getAccountByEmail(email);
 
         assertEquals(email, accountFoundByEmail.getEmail());
     }
