@@ -1,16 +1,16 @@
 package com.volasoftware.tinder.services.contracts;
 
-import com.volasoftware.tinder.dtos.AccountDTO;
+import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import java.util.List;
 
 
-public interface AccountService {
+public interface AuthenticationService {
 
-  List<AccountDTO> getAll();
+  List<AccountDto> getAll();
 
-  AccountDTO register(RegisterRequest registerRequest);
+  AccountDto register(RegisterRequest registerRequest);
 
   Account getAccountByEmail(String email);
 }

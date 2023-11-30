@@ -5,7 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 import com.volasoftware.tinder.constants.Gender;
-import com.volasoftware.tinder.dtos.AccountDTO;
+import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.EmailIsTakenException;
@@ -25,23 +25,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-class AccountServiceImplTest {
+class AuthenticationServiceImplTest {
 
     @Mock
     private AccountRepository accountRepository;
     @Autowired
     @InjectMocks
-    private AccountServiceImpl accountService;
+    private AuthenticationServiceImpl accountService;
 
     @Test
     void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
         List<Account> accounts = getAccounts();
         given(accountRepository.findAll()).willReturn(accounts);
-        List<AccountDTO> result = accountService.getAll();
+        List<AccountDto> result = accountService.getAll();
 
         assertEquals(2, result.size());
     }
@@ -51,7 +50,7 @@ class AccountServiceImplTest {
         List<Account> accounts = getAccounts();
         given(accountRepository.findAll()).willReturn(accounts);
 
-        List<AccountDTO> result = accountService.getAll();
+        List<AccountDto> result = accountService.getAll();
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
@@ -67,7 +66,7 @@ class AccountServiceImplTest {
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
         when(accountRepository.save(captor.capture())).thenReturn(account);
 
-        AccountDTO result = accountService.register(registerRequest);
+        AccountDto result = accountService.register(registerRequest);
 
         assertEquals(result.getEmail(), registerRequest.getEmail());
     }
@@ -78,7 +77,7 @@ class AccountServiceImplTest {
                 Gender.MALE);
 
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-        when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException());
+        when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException("Email is already taken"));
 
         Exception exception = assertThrows(EmailIsTakenException.class,
                 () -> accountService.register(registerRequest));
@@ -103,7 +102,7 @@ class AccountServiceImplTest {
     @Test
     void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
         String email = "phil@gmail.com";
-        given(accountRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException());
+        given(accountRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException("Account was not found"));
 
         Exception exception = assertThrows(AccountNotFoundException.class,
                 () -> accountService.getAccountByEmail(email));

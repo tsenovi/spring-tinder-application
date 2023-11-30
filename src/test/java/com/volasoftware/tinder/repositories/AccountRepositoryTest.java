@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.models.Account;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +31,8 @@ public class AccountRepositoryTest {
     account.setLastName("Test");
     account.setEmail(EMAIL);
     account.setPassword("password");
-    account.setCreatedDate(new Date());
-    account.setLastModifiedDate(new Date());
+    account.setCreatedDate(LocalDateTime.now());
+    account.setLastModifiedDate(LocalDateTime.now());
     account.setGender(Gender.MALE);
 
     // save to repository

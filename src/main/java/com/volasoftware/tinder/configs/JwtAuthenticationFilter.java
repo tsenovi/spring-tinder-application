@@ -1,6 +1,6 @@
 package com.volasoftware.tinder.configs;
 
-import com.volasoftware.tinder.services.implementations.JwtService;
+import com.volasoftware.tinder.services.contracts.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

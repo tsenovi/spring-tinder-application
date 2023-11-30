@@ -2,7 +2,7 @@ package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
-import com.volasoftware.tinder.services.contracts.AccountService;
+import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,19 +24,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     @Autowired
-    private AccountService accountService;
+    private AuthenticationService authenticationService;
 
     @ApiOperation(value = "Register new account")
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Successfully added data"),
+                            description = "Successfully added data!"),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Email is already taken"),
+                            description = "Email is already taken!"),
                     @ApiResponse(
-                            responseCode = "404", description = "Account not found")
+                            responseCode = "404", description = "Account not found!"),
+                    @ApiResponse(
+                            responseCode = "406", description = "Email not valid!")
             })
     @PostMapping(value = "/register",
             consumes = {"application/xml", "application/json"})
@@ -47,6 +49,6 @@ public class AuthenticationController {
         return ResponseHandler.generateResponse(
                 "Successfully added data!",
                 HttpStatus.OK,
-                accountService.register(registerRequest));
+                authenticationService.register(registerRequest));
     }
 }

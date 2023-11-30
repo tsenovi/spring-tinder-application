@@ -8,9 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.volasoftware.tinder.constants.Gender;
-import com.volasoftware.tinder.dtos.AccountDTO;
+import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.RegisterRequest;
-import com.volasoftware.tinder.services.contracts.AccountService;
+import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ public class AuthenticationControllerTest {
     private static final String REGISTER_URI = "/api/v1/users/register";
     private MockMvc mockMvc;
     @MockBean
-    private AccountService accountService;
+    private AuthenticationService authenticationService;
 
     @BeforeEach
     public void setUp(WebApplicationContext webApplicationContext) {
@@ -46,14 +46,14 @@ public class AuthenticationControllerTest {
                 "john@gmail.com",
                 "password",
                 Gender.MALE);
-        AccountDTO accountDTO = new AccountDTO(
+        AccountDto accountDto = new AccountDto(
                 "John",
                 "Doe",
                 "john@gmail.com",
                 Gender.MALE);
 
         // When
-        given(accountService.register(any(RegisterRequest.class))).willReturn(accountDTO);
+        given(authenticationService.register(any(RegisterRequest.class))).willReturn(accountDto);
 
         // Then
         mockMvc
