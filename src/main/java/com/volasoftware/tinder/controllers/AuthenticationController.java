@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.controllers;
 
+import com.volasoftware.tinder.constants.Constants;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
@@ -44,7 +45,7 @@ public class AuthenticationController {
             @RequestBody RegisterRequest registerRequest) {
 
         return ResponseHandler.generateResponse(
-                "Successfully added data!",
+                Constants.ACCOUNT_REGISTERED,
                 HttpStatus.OK,
                 authenticationService.register(registerRequest));
     }
@@ -59,14 +60,12 @@ public class AuthenticationController {
                             responseCode = "400",
                             description = "Token expired or not exist!")
             })
-    @GetMapping(value = "/verify",
-            consumes = {"application/xml", "application/json"})
-    public ResponseEntity<?> verify(
-            @ApiParam(value = "Verify email", required = true)
-            @RequestParam("token") String token) {
+    @GetMapping(value = "/verify")
+    public ResponseEntity<?> verify(@ApiParam(value = "Verify email")
+                                    @RequestParam("token") String token) {
 
         return ResponseHandler.generateResponse(
-                "Successfully verified account!",
+                Constants.ACCOUNT_VERIFIED,
                 HttpStatus.OK,
                 authenticationService.verify(token));
     }

@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.configs;
 
+import com.volasoftware.tinder.constants.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +14,7 @@ import javax.sql.DataSource;
 import java.util.Objects;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.volasoftware.tinder.repositories")
+@EnableJpaRepositories(basePackages = Constants.REPOSITORIES_PATH)
 @EnableTransactionManagement
 public class PersistenceConfig {
 

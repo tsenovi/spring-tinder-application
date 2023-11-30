@@ -1,6 +1,9 @@
 package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.dtos.AccountDto;
+import com.volasoftware.tinder.exceptions.EmailAlreadyVerifiedException;
+import com.volasoftware.tinder.exceptions.VerificationTokenExpiredException;
+import com.volasoftware.tinder.exceptions.VerificationTokenNotExistException;
 import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
@@ -10,6 +13,7 @@ import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.volasoftware.tinder.constants.Constants;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -43,24 +47,24 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     @Override
     public AccountDto verifyToken(String token) {
-        //TODO create those exceptions!
 
         Optional<VerificationToken> optionalVerificationToken = verificationTokenRepository.findByToken(token);
         if (optionalVerificationToken.isEmpty()) {
-//            throw new VerificationTokenNotExistException("Verification token does not exist!");
+            throw new VerificationTokenNotExistException(Constants.TOKEN_NOT_EXIST);
         }
 
         VerificationToken verificationToken = optionalVerificationToken.get();
         if (verificationToken.getVerifiedAt() != null) {
-//            throw new EmailAlreadyVerifiedException("Email already confirmed!");
+            throw new EmailAlreadyVerifiedException(Constants.EMAIL_ALREADY_CONFIRMED);
         }
 
         LocalDateTime expiresAt = verificationToken.getExpiresAt();
         if (expiresAt.isBefore(LocalDateTime.now())) {
-//            throw new VerificationTokenExpiredException("Verification token expired!");
+            throw new VerificationTokenExpiredException(Constants.TOKEN_EXPIRED);
         }
 
-        verificationTokenRepository.updateToken(token, LocalDateTime.now());
+        verificationToken.setVerifiedAt(LocalDateTime.now());
+        verificationTokenRepository.save(verificationToken);
         return AccountMapper.INSTANCE.accountToAccountDto(verificationToken.getAccount());
     }
 }

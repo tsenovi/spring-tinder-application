@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.configs;
 
+import com.volasoftware.tinder.constants.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -11,14 +12,14 @@ import springfox.documentation.spring.web.plugins.Docket;
 @Configuration
 @EnableWebMvc
 public class SpringFoxConfig {
-  @Bean
-  public Docket api() {
+    @Bean
+    public Docket api() {
 
-    return new Docket(DocumentationType.SWAGGER_2)
-        .select()
-        .apis(RequestHandlerSelectors.basePackage("com.volasoftware.tinder"))
-        .apis(RequestHandlerSelectors.any())
-        .paths(PathSelectors.any())
-        .build();
-  }
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage(Constants.BASE_PACKAGE))
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build();
+    }
 }

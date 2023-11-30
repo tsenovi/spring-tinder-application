@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.configs;
 
+import com.volasoftware.tinder.constants.Constants;
 import com.volasoftware.tinder.services.contracts.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,11 +23,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String BEARER_STRING = "Bearer ";
-    private static final String AUTHORIZATION_STRING = "Authorization";
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
 
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -35,15 +34,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader(AUTHORIZATION_STRING);
+        final String authHeader = request.getHeader(Constants.AUTHORIZATION_STRING);
         final String jwt;
         final String userName;
-        if (authHeader == null || !authHeader.startsWith(BEARER_STRING)) {
+        if (authHeader == null || !authHeader.startsWith(Constants.BEARER_STRING)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(BEARER_STRING.length());
+        jwt = authHeader.substring(Constants.BEARER_STRING.length());
         userName = jwtService.extractUserName(jwt);
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);

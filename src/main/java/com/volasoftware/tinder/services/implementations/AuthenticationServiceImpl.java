@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.services.implementations;
 
+import com.volasoftware.tinder.constants.Constants;
 import com.volasoftware.tinder.constants.Role;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
@@ -71,7 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AccountMapper.INSTANCE.accountToAccountDto(
                 accountRepository.findOneByEmail(email)
                         .orElseThrow(
-                                () -> new AccountNotFoundException("Account not found!")
+                                () -> new AccountNotFoundException(Constants.ACCOUNT_NOT_FOUND)
                         )
         );
     }
@@ -83,13 +84,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setVerified(true);
         accountRepository.save(account);
 
-        return "verified";
+        return Constants.VERIFIED;
     }
 
     private void checkIfEmailIsTaken(String email) {
         Optional<Account> optionalAccount = accountRepository.findOneByEmail(email);
         if (optionalAccount.isPresent()) {
-            throw new EmailIsTakenException("Email is already taken!");
+            throw new EmailIsTakenException(Constants.EMAIL_ALREADY_TAKEN);
         }
     }
 
@@ -97,7 +98,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         boolean isValidEmail = emailValidator.test(email);
 
         if (!isValidEmail) {
-            throw new EmailIsNotValidException("Email is not valid!");
+            throw new EmailIsNotValidException(Constants.EMAIL_NOT_VALID);
         }
     }
 }
