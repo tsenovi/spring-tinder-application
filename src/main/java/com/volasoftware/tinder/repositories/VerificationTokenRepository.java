@@ -17,8 +17,8 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
 
     @Transactional
     @Modifying
-    @Query("UPDATE VerificationToken t" +
-            "SET t.verifiedAt = ?2" +
+    @Query("UPDATE VerificationToken t " +
+            "SET t.verifiedAt = ?2 " +
             "WHERE t.token = ?1")
     void updateToken(String token, LocalDateTime time);
 }

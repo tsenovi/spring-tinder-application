@@ -74,14 +74,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                 () -> new AccountNotFoundException("Account not found!")
                         )
         );
-
     }
 
     @Override
     public String verify(String token) {
         AccountDto accountDto = verificationTokenService.verifyToken(token);
-
-        //TODO enable the account!
+        Account account = accountRepository.findOneByEmail(accountDto.getEmail()).get();
+        account.setVerified(true);
+        accountRepository.save(account);
 
         return "verified";
     }
