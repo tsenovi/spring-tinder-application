@@ -5,7 +5,6 @@ import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailAlreadyVerifiedException;
 import com.volasoftware.tinder.exceptions.VerificationTokenExpiredException;
 import com.volasoftware.tinder.exceptions.VerificationTokenNotExistException;
-import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.VerificationTokenRepository;
@@ -43,13 +42,16 @@ class VerificationTokenServiceImplTest {
 
     @Test
     void testVerifyTokenWhenTokenExpiredThenThrowVerificationTokenExpiredException() {
+        //given
         Account account = generateAccount();
         VerificationToken verificationToken = generateVerificationToken(account);
         String uuidToken = verificationToken.getToken();
         verificationToken.setExpiresAt(LocalDateTime.now().minusDays(1));
 
+        //when
         when(repository.findByToken(uuidToken)).thenReturn(Optional.of(verificationToken));
 
+        //then
         VerificationTokenExpiredException exception = assertThrows(
                 VerificationTokenExpiredException.class, () -> {
                     service.verifyToken(uuidToken);
@@ -60,13 +62,16 @@ class VerificationTokenServiceImplTest {
 
     @Test
     void testVerifyTokenWhenEmailAlreadyVerifiedThenThrowEmailAlreadyVerifiedException() {
+        //given
         Account account = generateAccount();
         VerificationToken verificationToken = generateVerificationToken(account);
         String uuidToken = verificationToken.getToken();
         verificationToken.setVerifiedAt(LocalDateTime.now().plusMinutes(5));
 
+        //when
         when(repository.findByToken(uuidToken)).thenReturn(Optional.of(verificationToken));
 
+        //then
         EmailAlreadyVerifiedException exception = assertThrows(
                 EmailAlreadyVerifiedException.class, () -> {
                     service.verifyToken(uuidToken);
@@ -77,10 +82,13 @@ class VerificationTokenServiceImplTest {
 
     @Test
     void testVerifyTokenWhenTokenDoesNotExistThenThrowTokenNotExistsException() {
+        //given
         String token = "tokenDoesNotExist";
 
+        //when
         when(repository.findByToken(token)).thenReturn(Optional.empty());
 
+        //then
         VerificationTokenNotExistException exception = assertThrows(
                 VerificationTokenNotExistException.class, () -> {
                     service.verifyToken(token);
@@ -91,13 +99,16 @@ class VerificationTokenServiceImplTest {
 
     @Test
     void testVerifyTokenWhenTokenExistThenReturnTheAccountDto() {
+        //given
         Account account = generateAccount();
         VerificationToken verificationToken = generateVerificationToken(account);
 
+        //when
         when(repository.findByToken(verificationToken.getToken())).thenReturn(Optional.of(verificationToken));
 
         AccountDto accountDto = service.verifyToken(verificationToken.getToken());
 
+        //then
         verify(repository, times(1)).save(verificationToken);
 
         assertNotNull(accountDto);

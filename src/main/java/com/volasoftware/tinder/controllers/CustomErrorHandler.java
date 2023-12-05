@@ -31,7 +31,7 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({EmailAlreadyVerifiedException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     public ResponseEntity<?> handleEmailAlreadyVerifiedException(RuntimeException exception) {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE, null);
     }
@@ -39,12 +39,12 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({VerificationTokenExpiredException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleVerificationTokenExpiredException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE, null);
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
     }
 
     @ExceptionHandler({VerificationTokenNotExistException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<?> handleVerificationTokenNotExistException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE, null);
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_FOUND, null);
     }
 }
