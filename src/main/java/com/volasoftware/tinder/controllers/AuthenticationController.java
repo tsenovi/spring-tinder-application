@@ -7,6 +7,7 @@ import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,10 @@ public class AuthenticationController {
             })
     @GetMapping(value = "/verify")
     public ResponseEntity<?> verify(@ApiParam(value = "Verify email")
+                                    @Parameter(
+                                            name = "token",
+                                            description = "Verification token",
+                                            example = "50211ec0-b73f-49cb-a853-b694c4d5b48d")
                                     @RequestParam("token") String token) {
 
         return ResponseHandler.generateResponse(

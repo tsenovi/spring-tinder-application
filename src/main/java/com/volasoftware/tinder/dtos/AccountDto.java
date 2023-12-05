@@ -6,16 +6,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ApiModel(description = "Public account information")
+@ApiModel(value = "Public model", description = "Public account information")
 public class AccountDto {
 
   @ApiModelProperty(value = "First name", example = "Ivan", required = true)

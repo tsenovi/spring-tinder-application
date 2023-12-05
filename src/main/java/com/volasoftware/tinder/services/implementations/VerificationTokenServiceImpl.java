@@ -49,22 +49,34 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     public AccountDto verifyToken(String token) {
 
         Optional<VerificationToken> optionalVerificationToken = verificationTokenRepository.findByToken(token);
-        if (optionalVerificationToken.isEmpty()) {
-            throw new VerificationTokenNotExistException(Constants.TOKEN_NOT_EXIST);
-        }
+        isTokenExist(optionalVerificationToken);
 
         VerificationToken verificationToken = optionalVerificationToken.get();
-        if (verificationToken.getVerifiedAt() != null) {
-            throw new EmailAlreadyVerifiedException(Constants.EMAIL_ALREADY_CONFIRMED);
-        }
+        isEmailAlreadyVerified(verificationToken);
 
         LocalDateTime expiresAt = verificationToken.getExpiresAt();
-        if (expiresAt.isBefore(LocalDateTime.now())) {
-            throw new VerificationTokenExpiredException(Constants.TOKEN_EXPIRED);
-        }
+        isTokenExpired(expiresAt);
 
         verificationToken.setVerifiedAt(LocalDateTime.now());
         verificationTokenRepository.save(verificationToken);
         return AccountMapper.INSTANCE.accountToAccountDto(verificationToken.getAccount());
+    }
+
+    private void isTokenExpired(LocalDateTime expiresAt) {
+        if (expiresAt.isBefore(LocalDateTime.now())) {
+            throw new VerificationTokenExpiredException(Constants.TOKEN_EXPIRED);
+        }
+    }
+
+    private void isEmailAlreadyVerified(VerificationToken verificationToken) {
+        if (verificationToken.getVerifiedAt() != null) {
+            throw new EmailAlreadyVerifiedException(Constants.EMAIL_ALREADY_CONFIRMED);
+        }
+    }
+
+    private void isTokenExist(Optional<VerificationToken> optionalVerificationToken) {
+        if (optionalVerificationToken.isEmpty()) {
+            throw new VerificationTokenNotExistException(Constants.TOKEN_NOT_EXIST);
+        }
     }
 }
