@@ -1,6 +1,6 @@
 package com.volasoftware.tinder.configs;
 
-import com.volasoftware.tinder.constants.Constants;
+import com.volasoftware.tinder.constants.SecurityConstant;
 import com.volasoftware.tinder.services.contracts.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,15 +34,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader(Constants.AUTHORIZATION_STRING);
+        final String authHeader = request.getHeader(SecurityConstant.AUTHORIZATION);
         final String jwt;
         final String userName;
-        if (authHeader == null || !authHeader.startsWith(Constants.BEARER_STRING)) {
+        if (authHeader == null || !authHeader.startsWith(SecurityConstant.BEARER)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(Constants.BEARER_STRING.length());
+        jwt = authHeader.substring(SecurityConstant.BEARER.length());
         userName = jwtService.extractUserName(jwt);
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);

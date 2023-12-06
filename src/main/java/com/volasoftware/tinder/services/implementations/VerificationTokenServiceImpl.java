@@ -1,5 +1,7 @@
 package com.volasoftware.tinder.services.implementations;
 
+import com.volasoftware.tinder.constants.MailConstant;
+import com.volasoftware.tinder.constants.SecurityConstant;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailAlreadyVerifiedException;
 import com.volasoftware.tinder.exceptions.VerificationTokenExpiredException;
@@ -13,7 +15,6 @@ import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.volasoftware.tinder.constants.Constants;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -64,19 +65,19 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     private void isTokenExpired(LocalDateTime expiresAt) {
         if (expiresAt.isBefore(LocalDateTime.now())) {
-            throw new VerificationTokenExpiredException(Constants.TOKEN_EXPIRED);
+            throw new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED);
         }
     }
 
     private void isEmailAlreadyVerified(VerificationToken verificationToken) {
         if (verificationToken.getVerifiedAt() != null) {
-            throw new EmailAlreadyVerifiedException(Constants.EMAIL_ALREADY_CONFIRMED);
+            throw new EmailAlreadyVerifiedException(MailConstant.ALREADY_CONFIRMED);
         }
     }
 
     private void isTokenExist(Optional<VerificationToken> optionalVerificationToken) {
         if (optionalVerificationToken.isEmpty()) {
-            throw new VerificationTokenNotExistException(Constants.TOKEN_NOT_EXIST);
+            throw new VerificationTokenNotExistException(SecurityConstant.TOKEN_NOT_EXIST);
         }
     }
 }

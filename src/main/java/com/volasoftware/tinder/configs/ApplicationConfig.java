@@ -1,6 +1,6 @@
 package com.volasoftware.tinder.configs;
 
-import com.volasoftware.tinder.constants.Constants;
+import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService getUserDetailsService() {
         return userName -> accountRepository.findOneByEmail(userName)
-                .orElseThrow(() -> new AccountNotFoundException(Constants.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
     }
 
     @Bean

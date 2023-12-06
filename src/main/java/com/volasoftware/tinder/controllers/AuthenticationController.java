@@ -1,6 +1,6 @@
 package com.volasoftware.tinder.controllers;
 
-import com.volasoftware.tinder.constants.Constants;
+import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
@@ -46,7 +46,7 @@ public class AuthenticationController {
             @RequestBody RegisterRequest registerRequest) {
 
         return ResponseHandler.generateResponse(
-                Constants.ACCOUNT_REGISTERED,
+                AccountConstant.REGISTERED,
                 HttpStatus.OK,
                 authenticationService.register(registerRequest));
     }
@@ -70,7 +70,7 @@ public class AuthenticationController {
                                     @RequestParam("token") String token) {
 
         return ResponseHandler.generateResponse(
-                Constants.ACCOUNT_VERIFIED,
+                AccountConstant.VERIFIED,
                 HttpStatus.OK,
                 authenticationService.verify(token));
     }
