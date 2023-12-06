@@ -2,11 +2,9 @@ package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.constants.SecurityConstant;
-import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailAlreadyVerifiedException;
 import com.volasoftware.tinder.exceptions.VerificationTokenExpiredException;
 import com.volasoftware.tinder.exceptions.VerificationTokenNotExistException;
-import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.VerificationTokenRepository;
@@ -47,7 +45,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Override
-    public AccountDto verifyToken(String token) {
+    public Account verifyToken(String token) {
 
         Optional<VerificationToken> optionalVerificationToken = verificationTokenRepository.findByToken(token);
         isTokenExist(optionalVerificationToken);
@@ -59,8 +57,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         isTokenExpired(expiresAt);
 
         verificationToken.setVerifiedAt(LocalDateTime.now());
-        verificationTokenRepository.save(verificationToken);
-        return AccountMapper.INSTANCE.accountToAccountDto(verificationToken.getAccount());
+        VerificationToken updatedVerificationToken = verificationTokenRepository.save(verificationToken);
+        return updatedVerificationToken.getAccount();
     }
 
     private void isTokenExpired(LocalDateTime expiresAt) {

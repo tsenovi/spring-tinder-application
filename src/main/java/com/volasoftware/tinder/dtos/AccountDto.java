@@ -13,7 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ApiModel(value = "Public model", description = "Public account information")
+@ApiModel(value = "Public account", description = "Public account information")
 public class AccountDto {
 
   @ApiModelProperty(value = "First name", example = "Ivan", required = true)
@@ -28,4 +28,7 @@ public class AccountDto {
   @ApiModelProperty(value = "Gender", example = "MALE", required = true)
   @Enumerated(EnumType.STRING)
   private Gender gender;
+
+  private boolean isLocked;
+  private boolean isVerified;
 }

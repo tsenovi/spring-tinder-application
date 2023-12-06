@@ -6,13 +6,9 @@ import com.volasoftware.tinder.dtos.RegisterRequest;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.ReportingPolicy;
-import org.mapstruct.factory.Mappers;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface AccountMapper {
-
-  AccountMapper INSTANCE = Mappers.getMapper(AccountMapper.class);
 
   @Mapping(target = "createdDate", ignore = true)
   @Mapping(target = "lastModifiedDate", ignore = true)

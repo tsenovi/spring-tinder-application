@@ -36,6 +36,9 @@ class AuthenticationServiceImplTest {
     @InjectMocks
     private AuthenticationServiceImpl accountService;
 
+    @Autowired
+    private AccountMapper accountMapper;
+
     @Test
     void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
         List<Account> accounts = getAccounts();
@@ -61,7 +64,7 @@ class AuthenticationServiceImplTest {
         RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com", "password",
                 Gender.MALE);
 
-        Account account = AccountMapper.INSTANCE.registerRequestToAccount(registerRequest);
+        Account account = accountMapper.registerRequestToAccount(registerRequest);
 
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
         when(accountRepository.save(captor.capture())).thenReturn(account);

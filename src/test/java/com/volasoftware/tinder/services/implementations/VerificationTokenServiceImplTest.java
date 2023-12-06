@@ -105,14 +105,15 @@ class VerificationTokenServiceImplTest {
 
         //when
         when(repository.findByToken(verificationToken.getToken())).thenReturn(Optional.of(verificationToken));
+        when(repository.save(verificationToken)).thenReturn(verificationToken);
 
-        AccountDto accountDto = service.verifyToken(verificationToken.getToken());
+        Account expectedAccount = service.verifyToken(verificationToken.getToken());
 
         //then
         verify(repository, times(1)).save(verificationToken);
 
-        assertNotNull(accountDto);
-        assertEquals(account.getEmail(), accountDto.getEmail());
+        assertNotNull(expectedAccount);
+        assertEquals(account.getEmail(), expectedAccount.getEmail());
     }
 
     private VerificationToken generateVerificationToken(

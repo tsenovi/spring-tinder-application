@@ -1,7 +1,6 @@
 package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.constants.AccountConstant;
-import com.volasoftware.tinder.constants.Constants;
 import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.constants.Role;
 import com.volasoftware.tinder.dtos.AccountDto;
@@ -44,11 +43,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private AccountMapper accountMapper;
+
     @Override
     public List<AccountDto> getAll() {
         List<Account> accounts = accountRepository.findAll();
 
-        return AccountMapper.INSTANCE.accountListToAccountDtoList(accounts);
+        return accountMapper.accountListToAccountDtoList(accounts);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         checkIfEmailIsTaken(registerRequest.getEmail());
 
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        Account account = AccountMapper.INSTANCE.registerRequestToAccount(registerRequest);
+        Account account = accountMapper.registerRequestToAccount(registerRequest);
         account.setRole(Role.USER);
         account.setLocked(false);
         account.setVerified(false);
@@ -65,28 +67,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         verificationTokenService.generateToken(savedAccount);
 
-        return AccountMapper.INSTANCE.accountToAccountDto(savedAccount);
+        return accountMapper.accountToAccountDto(savedAccount);
     }
 
 
     @Override
     public AccountDto getAccountByEmail(String email) {
-        return AccountMapper.INSTANCE.accountToAccountDto(
-                accountRepository.findOneByEmail(email)
-                        .orElseThrow(
-                                () -> new AccountNotFoundException(AccountConstant.NOT_FOUND)
-                        )
-        );
+        Account account = accountRepository.findOneByEmail(email)
+                .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
+        
+        return accountMapper.accountToAccountDto(account);
     }
 
     @Override
-    public String verify(String token) {
-        AccountDto accountDto = verificationTokenService.verifyToken(token);
-        Account account = accountRepository.findOneByEmail(accountDto.getEmail()).get();
+    public AccountDto verify(String token) {
+        Account account = verificationTokenService.verifyToken(token);
         account.setVerified(true);
-        accountRepository.save(account);
+        Account updatedAccount = accountRepository.save(account);
 
-        return Constants.VERIFIED;
+        return accountMapper.accountToAccountDto(updatedAccount);
     }
 
     private void checkIfEmailIsTaken(String email) {

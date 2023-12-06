@@ -45,8 +45,16 @@ public class AuthenticationControllerTest {
         //Given
         String token = "73275233-bf2a-4c60-b2c9-10d4d02d8160";
 
+        AccountDto accountDto = new AccountDto(
+                "John",
+                "Doe",
+                "john@gmail.com",
+                Gender.MALE,
+                false,
+                false);
+
         // When
-        given(authenticationService.verify(any(String.class))).willReturn(Constants.VERIFIED);
+        given(authenticationService.verify(any(String.class))).willReturn(accountDto);
 
         // Then
         mockMvc
@@ -54,7 +62,7 @@ public class AuthenticationControllerTest {
                         .param("token", token)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.body").value(Constants.VERIFIED));
+                .andExpect(jsonPath("$.body.email").value("john@gmail.com"));
     }
 
     @Test
@@ -71,7 +79,9 @@ public class AuthenticationControllerTest {
                 "John",
                 "Doe",
                 "john@gmail.com",
-                Gender.MALE);
+                Gender.MALE,
+                false,
+                false);
 
         // When
         given(authenticationService.register(any(RegisterRequest.class))).willReturn(accountDto);
