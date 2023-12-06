@@ -54,7 +54,7 @@ public class AuthenticationControllerTest {
                 false);
 
         // When
-        given(authenticationService.verify(any(String.class))).willReturn(accountDto);
+        given(authenticationService.verify(token)).willReturn(accountDto);
 
         // Then
         mockMvc

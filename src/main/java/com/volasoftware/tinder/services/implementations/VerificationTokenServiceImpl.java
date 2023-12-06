@@ -25,23 +25,18 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
 
-    @Autowired
-    private EmailService emailService;
-
     @Override
-    public void generateToken(Account account) {
+    public VerificationToken generateToken(Account account) {
         String uuidToken = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken(
                 uuidToken,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now().plusDays(2),
+                LocalDateTime.now().plusDays(SecurityConstant.TOKEN_EXPIRATION_DAYS),
                 account
         );
 
-        verificationTokenRepository.save(verificationToken);
-
-        emailService.send(account.getEmail(), account.getFirstName(), uuidToken);
+        return verificationTokenRepository.save(verificationToken);
     }
 
     @Override

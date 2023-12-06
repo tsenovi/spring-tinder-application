@@ -6,19 +6,17 @@ import com.volasoftware.tinder.constants.Role;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
 import com.volasoftware.tinder.models.Account;
+import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
-import com.volasoftware.tinder.services.contracts.AuthenticationService;
+import com.volasoftware.tinder.services.contracts.*;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.volasoftware.tinder.services.contracts.EmailValidator;
-import com.volasoftware.tinder.services.contracts.JwtService;
-import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +34,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
     private VerificationTokenService verificationTokenService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private EmailValidator emailValidator;
@@ -65,7 +66,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setVerified(false);
         Account savedAccount = accountRepository.save(account);
 
-        verificationTokenService.generateToken(savedAccount);
+        VerificationToken verificationToken = verificationTokenService.generateToken(savedAccount);
+
+        emailService.sendVerificationMail(
+                registerRequest.getEmail(),
+                registerRequest.getFirstName(),
+                verificationToken.getToken()
+        );
 
         return accountMapper.accountToAccountDto(savedAccount);
     }
@@ -75,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AccountDto getAccountByEmail(String email) {
         Account account = accountRepository.findOneByEmail(email)
                 .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
-        
+
         return accountMapper.accountToAccountDto(account);
     }
 
