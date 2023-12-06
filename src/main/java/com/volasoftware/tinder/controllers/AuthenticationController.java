@@ -22,8 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "Authentication controller")
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
     @ApiOperation(value = "Register new account")
     @ApiResponses(

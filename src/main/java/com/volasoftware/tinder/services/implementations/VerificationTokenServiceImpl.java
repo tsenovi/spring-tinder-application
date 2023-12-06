@@ -4,14 +4,11 @@ import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.constants.SecurityConstant;
 import com.volasoftware.tinder.exceptions.EmailAlreadyVerifiedException;
 import com.volasoftware.tinder.exceptions.VerificationTokenExpiredException;
-import com.volasoftware.tinder.exceptions.VerificationTokenNotExistException;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.VerificationTokenRepository;
-import com.volasoftware.tinder.services.contracts.EmailService;
 import com.volasoftware.tinder.services.contracts.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,8 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VerificationTokenServiceImpl implements VerificationTokenService {
 
-    @Autowired
-    private VerificationTokenRepository verificationTokenRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     @Override
     public VerificationToken generateToken(Account account) {
@@ -70,7 +66,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     private void isTokenExist(Optional<VerificationToken> optionalVerificationToken) {
         if (optionalVerificationToken.isEmpty()) {
-            throw new VerificationTokenNotExistException(SecurityConstant.TOKEN_NOT_EXIST);
+            throw new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED);
         }
     }
 }

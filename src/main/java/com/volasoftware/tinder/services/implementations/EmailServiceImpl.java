@@ -33,8 +33,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${server.verify-url}")
     private String verifyUrl;
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Override
     @Async

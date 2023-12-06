@@ -1,20 +1,20 @@
 package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.constants.Gender;
-import com.volasoftware.tinder.dtos.AccountDto;
+import com.volasoftware.tinder.constants.MailConstant;
+import com.volasoftware.tinder.constants.SecurityConstant;
 import com.volasoftware.tinder.exceptions.EmailAlreadyVerifiedException;
 import com.volasoftware.tinder.exceptions.VerificationTokenExpiredException;
-import com.volasoftware.tinder.exceptions.VerificationTokenNotExistException;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.VerificationTokenRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -33,7 +33,7 @@ class VerificationTokenServiceImplTest {
     private static final String LAST_NAME = "Test";
     private static final String PASSWORD = "password";
 
-    @Mock
+    @MockBean
     VerificationTokenRepository repository;
 
     @Autowired
@@ -57,7 +57,7 @@ class VerificationTokenServiceImplTest {
                     service.verifyToken(uuidToken);
                 });
 
-        assertEquals("Token expired!", exception.getMessage());
+        assertEquals(SecurityConstant.TOKEN_EXPIRED, exception.getMessage());
     }
 
     @Test
@@ -77,7 +77,7 @@ class VerificationTokenServiceImplTest {
                     service.verifyToken(uuidToken);
                 });
 
-        assertEquals("Email already confirmed!", exception.getMessage());
+        assertEquals(MailConstant.ALREADY_CONFIRMED, exception.getMessage());
     }
 
     @Test
@@ -89,12 +89,12 @@ class VerificationTokenServiceImplTest {
         when(repository.findByToken(token)).thenReturn(Optional.empty());
 
         //then
-        VerificationTokenNotExistException exception = assertThrows(
-                VerificationTokenNotExistException.class, () -> {
+        VerificationTokenExpiredException exception = assertThrows(
+                VerificationTokenExpiredException.class, () -> {
                     service.verifyToken(token);
                 });
 
-        assertEquals("Token not exist!", exception.getMessage());
+        assertEquals(SecurityConstant.TOKEN_EXPIRED, exception.getMessage());
     }
 
     @Test

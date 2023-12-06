@@ -41,10 +41,4 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleVerificationTokenExpiredException(RuntimeException exception) {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
     }
-
-    @ExceptionHandler({VerificationTokenNotExistException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<?> handleVerificationTokenNotExistException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_FOUND, null);
-    }
 }

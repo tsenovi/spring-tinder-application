@@ -1,37 +1,53 @@
 package com.volasoftware.tinder.services.implementations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 import com.volasoftware.tinder.constants.Gender;
+import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.models.Account;
+import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.AccountRepository;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import com.volasoftware.tinder.repositories.VerificationTokenRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class AuthenticationServiceImplTest {
 
-    @Mock
+    private static final String FIRST_NAME = "Test";
+    private static final String EMAIL = "Test_Test@gmail.com";
+    private static final Long ID = 1L;
+    private static final String LAST_NAME = "Test";
+    private static final String PASSWORD = "password";
+
+    @MockBean
     private AccountRepository accountRepository;
+
+    @MockBean
+    private VerificationTokenRepository verificationTokenRepository;
+
     @Autowired
     @InjectMocks
     private AuthenticationServiceImpl accountService;
@@ -42,7 +58,7 @@ class AuthenticationServiceImplTest {
     @Test
     void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
         List<Account> accounts = getAccounts();
-        given(accountRepository.findAll()).willReturn(accounts);
+        when(accountRepository.findAll()).thenReturn(accounts);
         List<AccountDto> result = accountService.getAll();
 
         assertEquals(2, result.size());
@@ -51,7 +67,7 @@ class AuthenticationServiceImplTest {
     @Test
     void testGettingAllAccountsWhenGivenListOfAccountsThenExpectedListIsNotEmpty() {
         List<Account> accounts = getAccounts();
-        given(accountRepository.findAll()).willReturn(accounts);
+        when(accountRepository.findAll()).thenReturn(accounts);
 
         List<AccountDto> result = accountService.getAll();
 
@@ -61,13 +77,13 @@ class AuthenticationServiceImplTest {
 
     @Test
     void testCreatingAccountWhenEmailIsNotTakenThenCreationIsSuccessful() {
-        RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com", "password",
+        RegisterRequest registerRequest = getRegisterRequest(FIRST_NAME, LAST_NAME, EMAIL, PASSWORD,
                 Gender.MALE);
+        Account account = generateAccount();
+        VerificationToken verificationToken = generateVerificationToken(account);
 
-        Account account = accountMapper.registerRequestToAccount(registerRequest);
-
-        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-        when(accountRepository.save(captor.capture())).thenReturn(account);
+        when(accountRepository.save(any(Account.class))).thenReturn(account);
+        when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(verificationToken);
 
         AccountDto result = accountService.register(registerRequest);
 
@@ -80,12 +96,12 @@ class AuthenticationServiceImplTest {
                 Gender.MALE);
 
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-        when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException("Email is already taken"));
+        when(accountRepository.save(captor.capture())).thenThrow(new EmailIsTakenException(MailConstant.ALREADY_TAKEN));
 
         Exception exception = assertThrows(EmailIsTakenException.class,
                 () -> accountService.register(registerRequest));
 
-        String expectedMessage = "Email is already taken";
+        String expectedMessage = MailConstant.ALREADY_TAKEN;
         String actualMessage = exception.getMessage();
 
         assertEquals(actualMessage, expectedMessage);
@@ -146,5 +162,32 @@ class AuthenticationServiceImplTest {
         registerRequest.setGender(gender);
 
         return registerRequest;
+    }
+
+    private VerificationToken generateVerificationToken(
+            Account account) {
+
+        VerificationToken verificationToken = new VerificationToken();
+        String randomToken = UUID.randomUUID().toString();
+        verificationToken.setToken(randomToken);
+        verificationToken.setAccount(account);
+        verificationToken.setCreatedDate(LocalDateTime.now());
+        verificationToken.setLastModifiedDate(LocalDateTime.now());
+        verificationToken.setExpiresAt(LocalDateTime.now().plusDays(2));
+
+        return verificationToken;
+    }
+
+    private Account generateAccount() {
+        Account account = new Account();
+        account.setId(ID);
+        account.setFirstName(FIRST_NAME);
+        account.setLastName(LAST_NAME);
+        account.setEmail(EMAIL);
+        account.setPassword(PASSWORD);
+        account.setCreatedDate(LocalDateTime.now());
+        account.setLastModifiedDate(LocalDateTime.now());
+        account.setGender(Gender.MALE);
+        return account;
     }
 }
