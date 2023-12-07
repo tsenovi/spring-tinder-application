@@ -38,14 +38,13 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Override
     public Account verifyToken(String token) {
 
-        Optional<VerificationToken> optionalVerificationToken = verificationTokenRepository.findByToken(token);
-        isTokenExist(optionalVerificationToken);
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED));
 
-        VerificationToken verificationToken = optionalVerificationToken.get();
         isEmailAlreadyVerified(verificationToken);
 
-        LocalDateTime expiresAt = verificationToken.getExpiresAt();
-        isTokenExpired(expiresAt);
+        LocalDateTime tokenExpirationDate = verificationToken.getExpiresAt();
+        isTokenExpired(tokenExpirationDate);
 
         verificationToken.setVerifiedAt(LocalDateTime.now());
         VerificationToken updatedVerificationToken = verificationTokenRepository.save(verificationToken);
@@ -61,12 +60,6 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     private void isEmailAlreadyVerified(VerificationToken verificationToken) {
         if (verificationToken.getVerifiedAt() != null) {
             throw new EmailAlreadyVerifiedException(MailConstant.ALREADY_CONFIRMED);
-        }
-    }
-
-    private void isTokenExist(Optional<VerificationToken> optionalVerificationToken) {
-        if (optionalVerificationToken.isEmpty()) {
-            throw new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED);
         }
     }
 }
