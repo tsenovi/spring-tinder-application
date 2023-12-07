@@ -80,7 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AccountDto verify(String token) {
+    public AccountDto verifyAccount(String token) {
         Account account = verificationTokenService.verifyToken(token);
         account.setVerified(true);
         Account updatedAccount = accountRepository.save(account);

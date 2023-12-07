@@ -20,6 +20,7 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             "/api/v1/users/**",
+            "/api/v1/verification/**",
             "/v2/api-docs/**",
             "/v3/api-docs/**",
             "/swagger-resources/**",

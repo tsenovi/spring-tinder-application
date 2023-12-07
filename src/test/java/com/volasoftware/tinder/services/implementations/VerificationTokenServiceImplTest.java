@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +28,14 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 class VerificationTokenServiceImplTest {
 
+    public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
+            2023,
+            Month.DECEMBER,
+            7,
+            12,
+            30,
+            00,
+            50000);
     private static final String FIRST_NAME = "Test";
     private static final String EMAIL = "Test_Test@gmail.com";
     private static final Long ID = 1L;
@@ -116,16 +125,14 @@ class VerificationTokenServiceImplTest {
         assertEquals(account.getEmail(), expectedAccount.getEmail());
     }
 
-    private VerificationToken generateVerificationToken(
-            Account account) {
-
+    private VerificationToken generateVerificationToken(Account account) {
         VerificationToken verificationToken = new VerificationToken();
         String randomToken = UUID.randomUUID().toString();
         verificationToken.setToken(randomToken);
         verificationToken.setAccount(account);
-        verificationToken.setCreatedDate(LocalDateTime.now());
-        verificationToken.setLastModifiedDate(LocalDateTime.now());
-        verificationToken.setExpiresAt(LocalDateTime.now().plusDays(2));
+        verificationToken.setCreatedDate(LOCAL_DATE_TIME);
+        verificationToken.setLastModifiedDate(LOCAL_DATE_TIME);
+        verificationToken.setExpiresAt(LOCAL_DATE_TIME.plusDays(2));
 
         return verificationToken;
     }
@@ -137,8 +144,8 @@ class VerificationTokenServiceImplTest {
         account.setLastName(LAST_NAME);
         account.setEmail(EMAIL);
         account.setPassword(PASSWORD);
-        account.setCreatedDate(LocalDateTime.now());
-        account.setLastModifiedDate(LocalDateTime.now());
+        account.setCreatedDate(LOCAL_DATE_TIME);
+        account.setLastModifiedDate(LOCAL_DATE_TIME);
         account.setGender(Gender.MALE);
         return account;
     }

@@ -14,5 +14,5 @@ public interface AuthenticationService {
 
     AccountDto getAccountByEmail(String email);
 
-    AccountDto verify(String token);
+    AccountDto verifyAccount(String token);
 }
