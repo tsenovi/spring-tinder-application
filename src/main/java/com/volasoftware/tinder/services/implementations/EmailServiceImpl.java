@@ -65,9 +65,8 @@ public class EmailServiceImpl implements EmailService {
         byte[] contentBytes = readFile(MailConstant.VERIFICATION_FILE);
 
         String htmlContent = new String(contentBytes);
-        String htmlWithLink = htmlContent.replace(MailConstant.ACTIVATION_LINK, link);
 
-        return htmlWithLink;
+        return htmlContent.replace(MailConstant.ACTIVATION_LINK, link);
     }
 
     private byte[] readFile(String filePath) {
