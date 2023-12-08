@@ -1,8 +1,6 @@
 package com.volasoftware.tinder.services.implementations;
 
-import com.volasoftware.tinder.constants.AccountConstant;
-import com.volasoftware.tinder.constants.MailConstant;
-import com.volasoftware.tinder.constants.Role;
+import com.volasoftware.tinder.constants.*;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
 import com.volasoftware.tinder.models.Account;
@@ -92,8 +90,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private void sendVerificationMail(String receiver, String token) {
         String link = baseUrl + verifyUrl + token;
-        byte[] contentBytes = fileService.readHtml(MailConstant.VERIFICATION_FILE);
-        String content = new String(contentBytes).replace(MailConstant.ACTIVATION_LINK, link);
+        byte[] contentBytes = fileService.readHtml(FilePathConstant.VERIFICATION_EMAIL_HTML);
+        String content = new String(contentBytes).replace(HtmlConstant.HREF, link);
 
         emailService.send(receiver, content);
     }
