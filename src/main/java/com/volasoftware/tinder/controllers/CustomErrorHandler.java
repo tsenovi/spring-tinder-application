@@ -41,4 +41,16 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleVerificationTokenExpiredException(RuntimeException exception) {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
     }
+
+    @ExceptionHandler({AccountNotVerifiedException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<?> handleAccountNotVerifiedException(RuntimeException exception) {
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+    }
+
+    @ExceptionHandler({PasswordMismatchException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<?> handlePasswordMismatchException(RuntimeException exception) {
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+    }
 }
