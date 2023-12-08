@@ -2,23 +2,17 @@ package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.services.contracts.EmailService;
+import com.volasoftware.tinder.services.contracts.FileService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +29,16 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
+    private final FileService fileService;
+
     @Override
     @Async
-    public void sendVerificationMail(String receiverEmail, String receiverFirstName, String token) {
-        String email = buildVerificationMail(receiverFirstName, token);
+    public void sendVerificationMail(String receiver, String token) {
+        String link = baseUrl + verifyUrl + token;
+        byte[] contentBytes = fileService.readHtml(MailConstant.VERIFICATION_FILE);
+        String content = new String(contentBytes).replace(MailConstant.ACTIVATION_LINK, link);
 
-        send(receiverEmail, email);
+        send(receiver, content);
     }
 
     private void send(String receiverEmail, String email) {
@@ -57,28 +55,5 @@ public class EmailServiceImpl implements EmailService {
             LOGGER.error("failed to send email", e);
             throw new IllegalStateException("failed to send email");
         }
-    }
-
-    private String buildVerificationMail(String name, String token) {
-        String link = baseUrl + verifyUrl + token;
-
-        byte[] contentBytes = readFile(MailConstant.VERIFICATION_FILE);
-
-        String htmlContent = new String(contentBytes);
-
-        return htmlContent.replace(MailConstant.ACTIVATION_LINK, link);
-    }
-
-    private byte[] readFile(String filePath) {
-        Resource resource = new ClassPathResource(filePath);
-
-        byte[] contentBytes;
-        try {
-            contentBytes = Files.readAllBytes(Paths.get(resource.getURI()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return contentBytes;
     }
 }

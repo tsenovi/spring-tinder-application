@@ -63,7 +63,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         emailService.sendVerificationMail(
                 registerRequest.getEmail(),
-                registerRequest.getFirstName(),
                 verificationToken.getToken()
         );
 
