@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +40,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AccountMapper accountMapper;
 
+    private final FileService fileService;
+
+    @Value("${server.base-url}")
+    private String baseUrl;
+
+    @Value("${server.verify-url}")
+    private String verifyUrl;
+
     @Override
     public List<AccountDto> getAll() {
         List<Account> accounts = accountRepository.findAll();
@@ -60,15 +68,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Account savedAccount = accountRepository.save(account);
 
         VerificationToken verificationToken = verificationTokenService.generateToken(savedAccount);
-
-        emailService.sendVerificationMail(
-                registerRequest.getEmail(),
-                verificationToken.getToken()
-        );
+        sendVerificationMail(registerRequest.getEmail(), verificationToken.getToken());
 
         return accountMapper.accountToAccountDto(savedAccount);
     }
-
 
     @Override
     public AccountDto getAccountByEmail(String email) {
@@ -85,6 +88,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Account updatedAccount = accountRepository.save(account);
 
         return accountMapper.accountToAccountDto(updatedAccount);
+    }
+
+    private void sendVerificationMail(String receiver, String token) {
+        String link = baseUrl + verifyUrl + token;
+        byte[] contentBytes = fileService.readHtml(MailConstant.VERIFICATION_FILE);
+        String content = new String(contentBytes).replace(MailConstant.ACTIVATION_LINK, link);
+
+        emailService.send(receiver, content);
     }
 
     private void checkIfEmailIsTaken(String email) {
