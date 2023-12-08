@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.services.implementations;
 
+import com.volasoftware.tinder.services.contracts.PasswordConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.Arrays;
@@ -8,7 +9,7 @@ import org.passay.*;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PasswordValidatorImpl implements com.volasoftware.tinder.services.contracts.PasswordValidator {
+public class PasswordValidatorImpl implements PasswordConstraintValidator {
 
     @Override
     public boolean isValid(String password, ConstraintValidatorContext constraintValidatorContext) {

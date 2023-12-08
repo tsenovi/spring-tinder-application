@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.configs;
 
+import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.Properties;
 
@@ -29,7 +29,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService getUserDetailsService() {
         return userName -> accountRepository.findOneByEmail(userName)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found!"));
+                .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
     }
 
     @Bean

@@ -44,11 +44,8 @@ dependencies {
     implementation 'org.flywaydb:flyway-mysql'
 
 //	Swagger
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-webflux-ui', version: '1.7.0'
-    implementation 'io.springfox:springfox-boot-starter:3.0.0'
-    compileOnly group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
-    compileOnly group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
+    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.12'
 
 //	Passay
     implementation 'org.passay:passay:1.6.2'
@@ -66,13 +63,13 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
 
 //	Lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    implementation "org.projectlombok:lombok:1.18.26"
+    annotationProcessor "org.projectlombok:lombok:1.18.20"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
 
 //	Mapstruct
-    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
-    implementation group: 'org.projectlombok', name: 'lombok-mapstruct-binding', version: '0.1.0'
+    implementation "org.mapstruct:mapstruct:1.5.5.Final"
+    annotationProcessor "org.mapstruct:mapstruct-processor:1.5.5.Final"
 
 //	SpringTest
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

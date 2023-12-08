@@ -6,7 +6,6 @@ import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.models.Account;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

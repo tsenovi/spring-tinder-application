@@ -1,21 +1,20 @@
 package com.volasoftware.tinder.controllers;
 
+import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,8 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(value = "Authentication controller")
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
     @ApiOperation(value = "Register new account")
     @ApiResponses(
@@ -47,7 +45,7 @@ public class AuthenticationController {
             @RequestBody RegisterRequest registerRequest) {
 
         return ResponseHandler.generateResponse(
-                "Successfully added data!",
+                AccountConstant.REGISTERED,
                 HttpStatus.OK,
                 authenticationService.register(registerRequest));
     }
