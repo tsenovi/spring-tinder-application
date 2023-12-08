@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.services.implementations;
 
+import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.services.contracts.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -33,8 +34,8 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom("ivan.tsenov@volasoftware.com");
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            LOGGER.error("failed to send email", e);
-            throw new IllegalStateException("failed to send email");
+            LOGGER.error(MailConstant.SEND_ERROR, e);
+            throw new IllegalStateException(MailConstant.SEND_ERROR);
         }
     }
 }
