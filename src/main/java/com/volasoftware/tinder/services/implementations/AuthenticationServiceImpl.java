@@ -3,13 +3,11 @@ package com.volasoftware.tinder.services.implementations;
 import com.volasoftware.tinder.constants.*;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.LoginRequest;
-import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
+import com.volasoftware.tinder.exceptions.*;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.dtos.RegisterRequest;
-import com.volasoftware.tinder.exceptions.AccountNotFoundException;
-import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.responses.LoginResponse;
 import com.volasoftware.tinder.services.contracts.*;
@@ -96,7 +94,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
 
         if (!isValidPassword(loginRequest.getPassword(), account.getPassword())) {
-            throw new PasswordMismatchException(AccountConstant.PASSWORD_MISMATCH);
+            throw new PasswordMismatchException(AccountConstant.WRONG_PASSWORD);
         }
 
         if (!account.isVerified()) {
