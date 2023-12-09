@@ -4,6 +4,8 @@ import com.volasoftware.tinder.exceptions.*;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -48,9 +50,9 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
     }
 
-    @ExceptionHandler({PasswordMismatchException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<?> handlePasswordMismatchException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+    @ExceptionHandler({AuthenticationException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<?> handleAuthenticationException(AuthenticationException exception) {
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.FORBIDDEN, null);
     }
 }

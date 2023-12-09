@@ -17,6 +17,8 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AccountMapper accountMapper;
 
     private final FileService fileService;
+
+    private final AuthenticationManager authenticationManager;
 
     @Value("${server.base-url}")
     private String baseUrl;
@@ -90,22 +94,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
+        );
+
         Account account = accountRepository.findOneByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
-
-        if (!isValidPassword(loginRequest.getPassword(), account.getPassword())) {
-            throw new PasswordMismatchException(AccountConstant.WRONG_PASSWORD);
-        }
 
         if (!account.isVerified()) {
             throw new AccountNotVerifiedException(AccountConstant.NOT_VERIFIED);
         }
 
         return new LoginResponse(jwtService.generateToken(account));
-    }
-
-    private boolean isValidPassword(String requestPassword, String accountPassword) {
-        return passwordEncoder.matches(requestPassword, accountPassword);
     }
 
     private void sendVerificationMail(String receiver, String token) {

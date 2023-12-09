@@ -48,7 +48,7 @@ public class AuthenticationController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Successfully logged in!"),
-                    @ApiResponse(responseCode = "400", description = "Wrong password!"),
+                    @ApiResponse(responseCode = "403", description = "Bad credentials!"),
                     @ApiResponse(responseCode = "400", description = "Account not verified!"),
                     @ApiResponse(responseCode = "404", description = "Account not found!")
             }
