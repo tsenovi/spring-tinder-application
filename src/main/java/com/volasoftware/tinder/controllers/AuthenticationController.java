@@ -5,6 +5,7 @@ import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
+import javax.validation.Valid;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -36,6 +37,7 @@ public class AuthenticationController {
             consumes = {"application/xml", "application/json"})
     public ResponseEntity<?> register(
             @ApiParam(value = "Registration details", required = true)
+            @Valid
             @RequestBody RegisterRequest registerRequest) {
 
         return ResponseHandler.generateResponse(
@@ -57,6 +59,7 @@ public class AuthenticationController {
             consumes = {"application/xml", "application/json"})
     public ResponseEntity<?> login(
             @ApiParam(value = "Login details", required = true)
+            @Valid
             @RequestBody LoginRequest loginRequest) {
 
         return ResponseHandler.generateResponse(
