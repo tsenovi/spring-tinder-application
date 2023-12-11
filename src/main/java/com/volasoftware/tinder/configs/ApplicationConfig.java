@@ -4,7 +4,6 @@ import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,8 +22,7 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     @Bean
     public UserDetailsService getUserDetailsService() {

@@ -2,14 +2,14 @@ package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.constants.*;
 import com.volasoftware.tinder.dtos.AccountDto;
-import com.volasoftware.tinder.exceptions.EmailIsNotValidException;
+import com.volasoftware.tinder.dtos.LoginRequest;
+import com.volasoftware.tinder.exceptions.*;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.dtos.RegisterRequest;
-import com.volasoftware.tinder.exceptions.AccountNotFoundException;
-import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
+import com.volasoftware.tinder.responses.LoginResponse;
 import com.volasoftware.tinder.services.contracts.*;
 
 import java.util.List;
@@ -17,6 +17,8 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AccountMapper accountMapper;
 
     private final FileService fileService;
+
+    private final AuthenticationManager authenticationManager;
 
     @Value("${server.base-url}")
     private String baseUrl;
@@ -86,6 +90,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Account updatedAccount = accountRepository.save(account);
 
         return accountMapper.accountToAccountDto(updatedAccount);
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest loginRequest) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
+        );
+
+        Account account = accountRepository.findOneByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
+
+        if (!account.isVerified()) {
+            throw new AccountNotVerifiedException(AccountConstant.NOT_VERIFIED);
+        }
+
+        return new LoginResponse(jwtService.generateToken(account));
     }
 
     private void sendVerificationMail(String receiver, String token) {
