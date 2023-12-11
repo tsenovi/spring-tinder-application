@@ -23,8 +23,6 @@ dependencies {
     implementation group: 'org.springframework.plugin', name: 'spring-plugin-core', version: '3.0.0'
 
 //	SpringStarters
-//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.3'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.3'
@@ -38,7 +36,6 @@ dependencies {
 
 //	Hibernate
     implementation group: 'org.hibernate', name: 'hibernate-core', version: '6.4.0.Final'
-
 
 //	Flyway
     implementation 'org.flywaydb:flyway-core'

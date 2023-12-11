@@ -16,6 +16,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -48,7 +50,6 @@ public class RegisterRequest {
 
   @ApiModelProperty(value = "Gender", required = true)
   @Enumerated(EnumType.STRING)
-  @NotBlank
+  @NotNull
   private Gender gender;
-
 }
