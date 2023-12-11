@@ -54,9 +54,11 @@ class AuthenticationServiceImplTest {
             50000);
     private static final String FIRST_NAME = "Test";
     private static final String EMAIL = "Test_Test@gmail.com";
+    private static final String WRONG_EMAIL = "XXXXXXXXXXXXXXXXXXX";
     private static final Long ID = 1L;
     private static final String LAST_NAME = "Test";
     private static final String PASSWORD = "password";
+    private static final String WRONG_PASSWORD = "XXXXXXXXXXXXXXXXXXXXX";
 
     @MockBean
     private AccountRepository authenticationRepository;
@@ -160,7 +162,7 @@ class AuthenticationServiceImplTest {
 
     @Test
     void testLoginWhenCredentialsAreWrongThenExceptionThrown() {
-        LoginRequest loginRequest = generateLoginRequest(EMAIL, PASSWORD);
+        LoginRequest loginRequest = generateLoginRequest(WRONG_EMAIL, WRONG_PASSWORD);
         Account account = generateAccount();
         account.setVerified(true);
 
