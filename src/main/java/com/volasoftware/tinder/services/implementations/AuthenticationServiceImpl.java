@@ -18,6 +18,8 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,11 +53,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${server.verify-url}")
     private String verifyUrl;
 
-    @Override
-    public List<AccountDto> getAll() {
-        List<Account> accounts = accountRepository.findAll();
+    public List<AccountDto> getAccounts(Pageable pageable) {
+        Page<Account> accountsPage = accountRepository.findAll(pageable);
+        List<Account> accountsList = accountsPage.getContent();
 
-        return accountMapper.accountListToAccountDtoList(accounts);
+        return accountMapper.accountListToAccountDtoList(accountsList);
     }
 
     @Override
