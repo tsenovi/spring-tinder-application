@@ -11,12 +11,12 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
 
-  @Mapping(target = "createdDate", ignore = true)
-  @Mapping(target = "lastModifiedDate", ignore = true)
-  @Mapping(target = "id", ignore = true)
-  Account registerRequestToAccount(RegisterRequest registerRequest);
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    Account registerRequestToAccount(RegisterRequest registerRequest);
 
-  AccountDto accountToAccountDto(Account account);
+    AccountDto accountToAccountDto(Account account);
 
-  List<AccountDto> accountListToAccountDtoList(List<Account> list);
+    List<AccountDto> accountListToAccountDtoList(List<Account> list);
 }

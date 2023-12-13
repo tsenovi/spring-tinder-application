@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
 
     private final static Logger LOGGER = LoggerFactory
-            .getLogger(EmailServiceImpl.class);
+        .getLogger(EmailServiceImpl.class);
 
     private final JavaMailSender mailSender;
 
@@ -27,7 +27,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper =
-                    new MimeMessageHelper(mimeMessage, "utf-8");
+                new MimeMessageHelper(mimeMessage, "utf-8");
             helper.setText(email, true);
             helper.setTo(receiverEmail);
             helper.setSubject("Confirm your email");

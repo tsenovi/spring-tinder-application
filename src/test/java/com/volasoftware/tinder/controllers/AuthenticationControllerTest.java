@@ -39,13 +39,13 @@ public class AuthenticationControllerTest {
     private static final String LOGIN_URI = "/api/v1/users/login";
 
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
-            2023,
-            Month.DECEMBER,
-            7,
-            12,
-            30,
-            00,
-            50000);
+        2023,
+        Month.DECEMBER,
+        7,
+        12,
+        30,
+        00,
+        50000);
     private static final String FIRST_NAME = "Test";
     private static final String EMAIL = "Test_Test@gmail.com";
     private static final Long ID = 1L;
@@ -68,30 +68,30 @@ public class AuthenticationControllerTest {
 
         //Given
         RegisterRequest registerRequest = new RegisterRequest(
-                FIRST_NAME,
-                LAST_NAME,
-                EMAIL,
-                PASSWORD,
-                Gender.MALE);
+            FIRST_NAME,
+            LAST_NAME,
+            EMAIL,
+            PASSWORD,
+            Gender.MALE);
         AccountDto accountDto = new AccountDto(
-                FIRST_NAME,
-                LAST_NAME,
-                EMAIL,
-                Gender.MALE,
-                false,
-                false);
+            FIRST_NAME,
+            LAST_NAME,
+            EMAIL,
+            Gender.MALE,
+            false,
+            false);
 
         // When
         given(authenticationService.register(any(RegisterRequest.class))).willReturn(accountDto);
 
         // Then
         mockMvc
-                .perform(post(REGISTER_URI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(registerRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.body.firstName").value(FIRST_NAME))
-                .andExpect(jsonPath("$.body.email").value(EMAIL));
+            .perform(post(REGISTER_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(registerRequest)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.body.firstName").value(FIRST_NAME))
+            .andExpect(jsonPath("$.body.email").value(EMAIL));
     }
 
     @Test
@@ -109,11 +109,11 @@ public class AuthenticationControllerTest {
 
         // Then
         mockMvc
-                .perform(post(LOGIN_URI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(loginRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(AccountConstant.LOGGED_IN));
+            .perform(post(LOGIN_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(loginRequest)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(AccountConstant.LOGGED_IN));
     }
 
     private Account generateAccount() {

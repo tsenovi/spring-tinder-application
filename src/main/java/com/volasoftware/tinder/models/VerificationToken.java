@@ -30,10 +30,10 @@ public class VerificationToken extends Audit {
     private Account account;
 
     public VerificationToken(String token,
-                             LocalDateTime createdDate,
-                             LocalDateTime lastModifiedDate,
-                             LocalDateTime expiresAt,
-                             Account account) {
+        LocalDateTime createdDate,
+        LocalDateTime lastModifiedDate,
+        LocalDateTime expiresAt,
+        Account account) {
         super(createdDate, lastModifiedDate);
         this.token = token;
         this.expiresAt = expiresAt;

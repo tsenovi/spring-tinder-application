@@ -24,22 +24,24 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({
-            EmailIsTakenException.class,
-            AccountNotVerifiedException.class,
-            VerificationTokenExpiredException.class
+        EmailIsTakenException.class,
+        AccountNotVerifiedException.class,
+        VerificationTokenExpiredException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleBadRequestException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST,
+            null);
     }
 
     @ExceptionHandler({
-            EmailIsNotValidException.class,
-            EmailAlreadyVerifiedException.class
+        EmailIsNotValidException.class,
+        EmailAlreadyVerifiedException.class
     })
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     public ResponseEntity<?> handleNotAcceptableException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE, null);
+        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE,
+            null);
     }
 
     @ExceptionHandler({AuthenticationException.class})

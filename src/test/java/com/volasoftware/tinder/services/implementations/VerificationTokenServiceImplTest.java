@@ -29,13 +29,13 @@ import static org.mockito.Mockito.*;
 class VerificationTokenServiceImplTest {
 
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
-            2023,
-            Month.DECEMBER,
-            12,
-            12,
-            30,
-            00,
-            50000);
+        2023,
+        Month.DECEMBER,
+        12,
+        12,
+        30,
+        00,
+        50000);
     private static final String FIRST_NAME = "Test";
     private static final String EMAIL = "Test_Test@gmail.com";
     private static final Long ID = 1L;
@@ -62,9 +62,9 @@ class VerificationTokenServiceImplTest {
 
         //then
         VerificationTokenExpiredException exception = assertThrows(
-                VerificationTokenExpiredException.class, () -> {
-                    service.verifyToken(uuidToken);
-                });
+            VerificationTokenExpiredException.class, () -> {
+                service.verifyToken(uuidToken);
+            });
 
         assertEquals(SecurityConstant.TOKEN_EXPIRED, exception.getMessage());
     }
@@ -82,9 +82,9 @@ class VerificationTokenServiceImplTest {
 
         //then
         EmailAlreadyVerifiedException exception = assertThrows(
-                EmailAlreadyVerifiedException.class, () -> {
-                    service.verifyToken(uuidToken);
-                });
+            EmailAlreadyVerifiedException.class, () -> {
+                service.verifyToken(uuidToken);
+            });
 
         assertEquals(MailConstant.ALREADY_CONFIRMED, exception.getMessage());
     }
@@ -99,9 +99,9 @@ class VerificationTokenServiceImplTest {
 
         //then
         VerificationTokenExpiredException exception = assertThrows(
-                VerificationTokenExpiredException.class, () -> {
-                    service.verifyToken(token);
-                });
+            VerificationTokenExpiredException.class, () -> {
+                service.verifyToken(token);
+            });
 
         assertEquals(SecurityConstant.TOKEN_EXPIRED, exception.getMessage());
     }
@@ -113,7 +113,8 @@ class VerificationTokenServiceImplTest {
         VerificationToken verificationToken = generateVerificationToken(account);
 
         //when
-        when(repository.findByToken(verificationToken.getToken())).thenReturn(Optional.of(verificationToken));
+        when(repository.findByToken(verificationToken.getToken())).thenReturn(
+            Optional.of(verificationToken));
         when(repository.save(verificationToken)).thenReturn(verificationToken);
 
         Account expectedAccount = service.verifyToken(verificationToken.getToken());
