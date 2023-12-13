@@ -45,13 +45,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 class AuthenticationServiceImplTest {
 
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
-            2023,
-            Month.DECEMBER,
-            7,
-            12,
-            30,
-            00,
-            50000);
+        2023,
+        Month.DECEMBER,
+        7,
+        12,
+        30,
+        00,
+        50000);
     private static final String FIRST_NAME = "Test";
     private static final String EMAIL = "Test_Test@gmail.com";
     private static final String WRONG_EMAIL = "XXXXXXXXXXXXXXXXXXX";
@@ -99,12 +99,13 @@ class AuthenticationServiceImplTest {
     @Test
     void testCreatingAccountWhenEmailIsNotTakenThenCreationIsSuccessful() {
         RegisterRequest registerRequest = getRegisterRequest(FIRST_NAME, LAST_NAME, EMAIL, PASSWORD,
-                Gender.MALE);
+            Gender.MALE);
         Account account = generateAccount();
         VerificationToken verificationToken = generateVerificationToken(account);
 
         when(authenticationRepository.save(any(Account.class))).thenReturn(account);
-        when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(verificationToken);
+        when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(
+            verificationToken);
 
         AccountDto result = authenticationService.register(registerRequest);
 
@@ -113,14 +114,16 @@ class AuthenticationServiceImplTest {
 
     @Test
     void testCreatingAccountWhenEmailIsTakenThenExceptionIsThrown() {
-        RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com", "password",
-                Gender.MALE);
+        RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com",
+            "password",
+            Gender.MALE);
 
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-        when(authenticationRepository.save(captor.capture())).thenThrow(new EmailIsTakenException(MailConstant.ALREADY_TAKEN));
+        when(authenticationRepository.save(captor.capture())).thenThrow(
+            new EmailIsTakenException(MailConstant.ALREADY_TAKEN));
 
         Exception exception = assertThrows(EmailIsTakenException.class,
-                () -> authenticationService.register(registerRequest));
+            () -> authenticationService.register(registerRequest));
 
         String expectedMessage = MailConstant.ALREADY_TAKEN;
         String actualMessage = exception.getMessage();
@@ -142,10 +145,11 @@ class AuthenticationServiceImplTest {
     @Test
     void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
         String email = "phil@gmail.com";
-        given(authenticationRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException("Account was not found"));
+        given(authenticationRepository.findOneByEmail(email)).willThrow(
+            new AccountNotFoundException("Account was not found"));
 
         Exception exception = assertThrows(AccountNotFoundException.class,
-                () -> authenticationService.getAccountByEmail(email));
+            () -> authenticationService.getAccountByEmail(email));
 
         String expectedMessage = "Account was not found";
         String actualMessage = exception.getMessage();
@@ -157,7 +161,8 @@ class AuthenticationServiceImplTest {
     void testLoginWhenAccountNotFoundThenExceptionThrown() {
         LoginRequest loginRequest = generateLoginRequest(null, null);
 
-        assertThrows(AccountNotFoundException.class, () -> authenticationService.login(loginRequest));
+        assertThrows(AccountNotFoundException.class,
+            () -> authenticationService.login(loginRequest));
     }
 
     @Test
@@ -166,11 +171,13 @@ class AuthenticationServiceImplTest {
         Account account = generateAccount();
         account.setVerified(true);
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(Optional.of(account));
+        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+            Optional.of(account));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException(AccountConstant.WRONG_PASSWORD));
+            .thenThrow(new BadCredentialsException(AccountConstant.WRONG_PASSWORD));
 
-        assertThrows(BadCredentialsException.class, () -> authenticationService.login(loginRequest));
+        assertThrows(BadCredentialsException.class,
+            () -> authenticationService.login(loginRequest));
     }
 
     @Test
@@ -178,9 +185,11 @@ class AuthenticationServiceImplTest {
         LoginRequest loginRequest = generateLoginRequest(EMAIL, PASSWORD);
         Account account = generateAccount();
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(Optional.of(account));
+        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+            Optional.of(account));
 
-        assertThrows(AccountNotVerifiedException.class, () -> authenticationService.login(loginRequest));
+        assertThrows(AccountNotVerifiedException.class,
+            () -> authenticationService.login(loginRequest));
     }
 
     @Test
@@ -189,7 +198,8 @@ class AuthenticationServiceImplTest {
         Account account = generateAccount();
         account.setVerified(true);
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(Optional.of(account));
+        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+            Optional.of(account));
 
         LoginResponse loginResponse = authenticationService.login(loginRequest);
 
@@ -209,7 +219,7 @@ class AuthenticationServiceImplTest {
     }
 
     private Account getAccount(String firstName, String lastName, String email, String password,
-                               Gender gender) {
+        Gender gender) {
         Account account = new Account();
         account.setFirstName(firstName);
         account.setLastName(lastName);
@@ -221,7 +231,7 @@ class AuthenticationServiceImplTest {
     }
 
     private RegisterRequest getRegisterRequest(String firstName, String lastName, String email,
-                                               String password, Gender gender) {
+        String password, Gender gender) {
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setFirstName(firstName);
         registerRequest.setLastName(lastName);

@@ -78,7 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AccountDto getAccountByEmail(String email) {
         Account account = accountRepository.findOneByEmail(email)
-                .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
+            .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
 
         return accountMapper.accountToAccountDto(account);
     }
@@ -95,14 +95,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
+            new UsernamePasswordAuthenticationToken(
+                loginRequest.getEmail(),
+                loginRequest.getPassword()
+            )
         );
 
         Account account = accountRepository.findOneByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
+            .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
 
         if (!account.isVerified()) {
             throw new AccountNotVerifiedException(AccountConstant.NOT_VERIFIED);

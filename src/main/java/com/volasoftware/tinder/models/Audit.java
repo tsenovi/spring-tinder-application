@@ -26,14 +26,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 public abstract class Audit {
 
-  @Column(name = "created_at", nullable = false, updatable = false)
-  @CreatedDate
-  @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime createdDate;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreatedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdDate;
 
-  @Column(name = "updated_at")
-  @LastModifiedDate
-  @Temporal(TemporalType.TIMESTAMP)
-  private LocalDateTime lastModifiedDate;
+    @Column(name = "updated_at")
+    @LastModifiedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime lastModifiedDate;
 
 }

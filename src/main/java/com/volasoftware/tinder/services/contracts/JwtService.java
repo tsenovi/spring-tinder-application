@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public interface JwtService {
+
     String extractUserName(String token);
 
     String generateToken(UserDetails userDetails);

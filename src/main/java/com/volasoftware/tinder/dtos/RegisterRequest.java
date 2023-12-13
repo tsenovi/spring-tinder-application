@@ -26,30 +26,30 @@ import javax.validation.constraints.NotNull;
 @ApiModel(value = "Register model", description = "Model for registration process")
 public class RegisterRequest {
 
-  @ApiModelProperty(value = "First name", required = true)
-  @Size(min = 2, max = 50)
-  @Pattern(regexp = "^[A-Za-z]*$")
-  @NotBlank
-  private String firstName;
+    @ApiModelProperty(value = "First name", required = true)
+    @Size(min = 2, max = 50)
+    @Pattern(regexp = "^[A-Za-z]*$")
+    @NotBlank
+    private String firstName;
 
-  @ApiModelProperty(value = "Last name", required = true)
-  @Size(min = 2, max = 50)
-  @Pattern(regexp = "^[A-Za-z]*$")
-  @NotBlank
-  private String lastName;
+    @ApiModelProperty(value = "Last name", required = true)
+    @Size(min = 2, max = 50)
+    @Pattern(regexp = "^[A-Za-z]*$")
+    @NotBlank
+    private String lastName;
 
-  @ApiModelProperty(value = "Email address", required = true)
-  @NotBlank
-  @Email
-  private String email;
+    @ApiModelProperty(value = "Email address", required = true)
+    @NotBlank
+    @Email
+    private String email;
 
-  @ApiModelProperty(value = "Password", required = true)
-  @Password
-  @NotBlank
-  private String password;
+    @ApiModelProperty(value = "Password", required = true)
+    @Password
+    @NotBlank
+    private String password;
 
-  @ApiModelProperty(value = "Gender", required = true)
-  @Enumerated(EnumType.STRING)
-  @NotNull
-  private Gender gender;
+    @ApiModelProperty(value = "Gender", required = true)
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Gender gender;
 }

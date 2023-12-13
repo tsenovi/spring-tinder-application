@@ -46,8 +46,9 @@ class VerificationTokenRepositoryTest {
 
         VerificationToken actualToken = null;
         // when
-        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token.getToken());
-        if (optionalToken.isPresent()){
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(
+            token.getToken());
+        if (optionalToken.isPresent()) {
             actualToken = optionalToken.get();
         }
 
@@ -58,7 +59,7 @@ class VerificationTokenRepositoryTest {
 
 
     private VerificationToken generateVerificationToken(
-            Account account) {
+        Account account) {
 
         VerificationToken verificationToken = new VerificationToken();
         String randomToken = UUID.randomUUID().toString();
