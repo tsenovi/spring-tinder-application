@@ -17,34 +17,36 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class CustomErrorHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({AccountNotFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<?> handleNotFoundException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_FOUND, null);
-    }
+  @ExceptionHandler({AccountNotFoundException.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ResponseEntity<?> handleNotFoundException(RuntimeException exception) {
+    return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_FOUND, null);
+  }
 
-    @ExceptionHandler({
-            EmailIsTakenException.class,
-            AccountNotVerifiedException.class,
-            VerificationTokenExpiredException.class
-    })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<?> handleBadRequestException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
-    }
+  @ExceptionHandler({
+      EmailIsTakenException.class,
+      AccountNotVerifiedException.class,
+      VerificationTokenExpiredException.class,
+      AccountNotOwnerException.class
+  })
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseEntity<?> handleBadRequestException(RuntimeException exception) {
+    return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, null);
+  }
 
-    @ExceptionHandler({
-            EmailIsNotValidException.class,
-            EmailAlreadyVerifiedException.class
-    })
-    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    public ResponseEntity<?> handleNotAcceptableException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE, null);
-    }
+  @ExceptionHandler({
+      EmailIsNotValidException.class,
+      EmailAlreadyVerifiedException.class
+  })
+  @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+  public ResponseEntity<?> handleNotAcceptableException(RuntimeException exception) {
+    return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_ACCEPTABLE,
+        null);
+  }
 
-    @ExceptionHandler({AuthenticationException.class})
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<?> handleAuthenticationException(RuntimeException exception) {
-        return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.FORBIDDEN, null);
-    }
+  @ExceptionHandler({AuthenticationException.class})
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public ResponseEntity<?> handleAuthenticationException(RuntimeException exception) {
+    return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.FORBIDDEN, null);
+  }
 }
