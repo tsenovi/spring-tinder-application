@@ -8,4 +8,5 @@ public class AccountConstant {
     public static final String LOGGED_IN = "Account logged in!";
     public static final String WRONG_PASSWORD = "Wrong password";
     public static final String NOT_VERIFIED = "Account not verified!";
+    public static final String DETAILS = "Account details!";
 }

@@ -31,7 +31,7 @@ class VerificationTokenServiceImplTest {
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
             2023,
             Month.DECEMBER,
-            7,
+            12,
             12,
             30,
             00,

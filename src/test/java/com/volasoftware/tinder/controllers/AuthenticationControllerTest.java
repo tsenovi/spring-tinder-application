@@ -50,7 +50,7 @@ public class AuthenticationControllerTest {
     private static final String EMAIL = "Test_Test@gmail.com";
     private static final Long ID = 1L;
     private static final String LAST_NAME = "Test";
-    private static final String PASSWORD = "password";
+    private static final String PASSWORD = "Password123";
 
     private MockMvc mockMvc;
     @MockBean
@@ -68,15 +68,15 @@ public class AuthenticationControllerTest {
 
         //Given
         RegisterRequest registerRequest = new RegisterRequest(
-                "John",
-                "Doe",
-                "john@gmail.com",
-                "password",
+                FIRST_NAME,
+                LAST_NAME,
+                EMAIL,
+                PASSWORD,
                 Gender.MALE);
         AccountDto accountDto = new AccountDto(
-                "John",
-                "Doe",
-                "john@gmail.com",
+                FIRST_NAME,
+                LAST_NAME,
+                EMAIL,
                 Gender.MALE,
                 false,
                 false);
@@ -90,8 +90,8 @@ public class AuthenticationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(registerRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.body.firstName").value("John"))
-                .andExpect(jsonPath("$.body.email").value("john@gmail.com"));
+                .andExpect(jsonPath("$.body.firstName").value(FIRST_NAME))
+                .andExpect(jsonPath("$.body.email").value(EMAIL));
     }
 
     @Test
