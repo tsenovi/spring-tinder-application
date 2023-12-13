@@ -9,4 +9,6 @@ public class AccountConstant {
     public static final String WRONG_PASSWORD = "Wrong password";
     public static final String NOT_VERIFIED = "Account not verified!";
     public static final String DETAILS = "Account details!";
+    public static final String UPDATED = "Account updated!";
+    public static final String NOT_OWNER = "Account is not owner!";
 }

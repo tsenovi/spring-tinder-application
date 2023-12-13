@@ -5,6 +5,7 @@ import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.LoginResponse;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -19,4 +20,6 @@ public interface AuthenticationService {
     AccountDto verifyAccount(String token);
 
     LoginResponse login(LoginRequest loginRequest);
+
+    AccountDto updateAccount(AccountDto accountDto, Principal principal);
 }

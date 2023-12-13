@@ -12,6 +12,7 @@ import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.responses.LoginResponse;
 import com.volasoftware.tinder.services.contracts.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,6 +110,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return new LoginResponse(jwtService.generateToken(account));
+    }
+
+    @Override
+    public AccountDto updateAccount(AccountDto accountDto, Principal principal) {
+        Account account = findAccountByEmail(accountDto.getEmail());
+        if (!account.getEmail().equals(principal.getName())) {
+            throw new AccountNotOwnerException(AccountConstant.NOT_OWNER);
+        }
+
+        account.setFirstName(accountDto.getFirstName());
+        account.setLastName(accountDto.getLastName());
+        account.setEmail(accountDto.getEmail());
+        account.setGender(accountDto.getGender());
+
+        return accountMapper.accountToAccountDto(accountRepository.save(account));
+    }
+
+    private Account findAccountByEmail(String email) {
+        return accountRepository.findOneByEmail(email)
+            .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
     }
 
     private void sendVerificationMail(String receiver, String token) {
