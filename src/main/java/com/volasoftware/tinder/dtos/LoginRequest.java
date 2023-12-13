@@ -16,13 +16,13 @@ import lombok.*;
 @ApiModel(value = "Login model", description = "Model for login process")
 public class LoginRequest {
 
-    @ApiModelProperty(value = "Email address", required = true)
-    @NotBlank
-    @Email
-    private String email;
+  @ApiModelProperty(value = "Email address", required = true)
+  @NotBlank
+  @Email
+  private String email;
 
-    @ApiModelProperty(value = "Password", required = true)
-    @Password
-    @NotBlank
-    private String password;
+  @ApiModelProperty(value = "Password", required = true)
+  @Password
+  @NotBlank
+  private String password;
 }

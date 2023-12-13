@@ -21,29 +21,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/verification")
 public class VerificationController {
 
-    private final AuthenticationService authenticationService;
+  private final AuthenticationService authenticationService;
 
-    @ApiOperation(value = "Verify account")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successfully verified account!"),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Token expired or not exist!")
-            })
-    @GetMapping(value = "/verify")
-    public ResponseEntity<?> verify(@ApiParam(value = "Verify email")
-                                    @Parameter(
-                                            name = "token",
-                                            description = "Verification token",
-                                            example = "50211ec0-b73f-49cb-a853-b694c4d5b48d")
-                                    @RequestParam("token") String token) {
+  @ApiOperation(value = "Verify account")
+  @ApiResponses(
+      value = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "Successfully verified account!"),
+          @ApiResponse(
+              responseCode = "400",
+              description = "Token expired or not exist!")
+      })
+  @GetMapping(value = "/verify")
+  public ResponseEntity<?> verify(@ApiParam(value = "Verify email")
+  @Parameter(
+      name = "token",
+      description = "Verification token",
+      example = "50211ec0-b73f-49cb-a853-b694c4d5b48d")
+  @RequestParam("token") String token) {
 
-        return ResponseHandler.generateResponse(
-                AccountConstant.VERIFIED,
-                HttpStatus.OK,
-                authenticationService.verifyAccount(token));
-    }
+    return ResponseHandler.generateResponse(
+        AccountConstant.VERIFIED,
+        HttpStatus.OK,
+        authenticationService.verifyAccount(token));
+  }
 }

@@ -16,26 +16,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    private final static Logger LOGGER = LoggerFactory
-            .getLogger(EmailServiceImpl.class);
+  private final static Logger LOGGER = LoggerFactory
+      .getLogger(EmailServiceImpl.class);
 
-    private final JavaMailSender mailSender;
+  private final JavaMailSender mailSender;
 
-    @Override
-    @Async
-    public void send(String receiverEmail, String email) {
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(mimeMessage, "utf-8");
-            helper.setText(email, true);
-            helper.setTo(receiverEmail);
-            helper.setSubject("Confirm your email");
-            helper.setFrom("ivan.tsenov@volasoftware.com");
-            mailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            LOGGER.error(MailConstant.SEND_ERROR, e);
-            throw new IllegalStateException(MailConstant.SEND_ERROR);
-        }
+  @Override
+  @Async
+  public void send(String receiverEmail, String email) {
+    try {
+      MimeMessage mimeMessage = mailSender.createMimeMessage();
+      MimeMessageHelper helper =
+          new MimeMessageHelper(mimeMessage, "utf-8");
+      helper.setText(email, true);
+      helper.setTo(receiverEmail);
+      helper.setSubject("Confirm your email");
+      helper.setFrom("ivan.tsenov@volasoftware.com");
+      mailSender.send(mimeMessage);
+    } catch (MessagingException e) {
+      LOGGER.error(MailConstant.SEND_ERROR, e);
+      throw new IllegalStateException(MailConstant.SEND_ERROR);
     }
+  }
 }

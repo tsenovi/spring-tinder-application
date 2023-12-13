@@ -17,18 +17,18 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "Home controller")
 public class HomeController {
 
-    @ApiOperation(value = "Home Page")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "Secured home page")
-            }
-    )
-    @GetMapping
-    public ResponseEntity<?> home() {
-        return ResponseHandler.generateResponse(
-                "Secured home page",
-                HttpStatus.OK,
-                null
-        );
-    }
+  @ApiOperation(value = "Home Page")
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "200", description = "Secured home page")
+      }
+  )
+  @GetMapping
+  public ResponseEntity<?> home() {
+    return ResponseHandler.generateResponse(
+        "Secured home page",
+        HttpStatus.OK,
+        null
+    );
+  }
 }

@@ -22,48 +22,48 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final AccountRepository accountRepository;
+  private final AccountRepository accountRepository;
 
-    @Bean
-    public UserDetailsService getUserDetailsService() {
-        return userName -> accountRepository.findOneByEmail(userName)
-                .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
-    }
+  @Bean
+  public UserDetailsService getUserDetailsService() {
+    return userName -> accountRepository.findOneByEmail(userName)
+        .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
+  }
 
-    @Bean
-    public AuthenticationProvider getAuthenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(getUserDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
+  @Bean
+  public AuthenticationProvider getAuthenticationProvider() {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    authProvider.setUserDetailsService(getUserDetailsService());
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return authProvider;
+  }
 
-    @Bean
-    public AuthenticationManager getAuthenticationManager(AuthenticationConfiguration config)
-            throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager getAuthenticationManager(AuthenticationConfiguration config)
+      throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public JavaMailSender getJavaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
+  @Bean
+  public JavaMailSender getJavaMailSender() {
+    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    mailSender.setHost("smtp.gmail.com");
+    mailSender.setPort(587);
 
-        mailSender.setUsername("tinder.app.ivan.tsenov@gmail.com");
-        mailSender.setPassword("lkyp pkln hhgk qwab");
+    mailSender.setUsername("tinder.app.ivan.tsenov@gmail.com");
+    mailSender.setPassword("lkyp pkln hhgk qwab");
 
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
+    Properties props = mailSender.getJavaMailProperties();
+    props.put("mail.transport.protocol", "smtp");
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.debug", "true");
 
-        return mailSender;
-    }
+    return mailSender;
+  }
 }

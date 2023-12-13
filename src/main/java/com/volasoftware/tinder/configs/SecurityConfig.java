@@ -17,33 +17,34 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String[] AUTH_WHITELIST = {
-            "/api/v1/users/**",
-            "/api/v1/verification/**",
-            "/v2/api-docs/**",
-            "/v3/api-docs/**",
-            "/swagger-resources/**",
-            "/swagger-ui/**"
-    };
+  private static final String[] AUTH_WHITELIST = {
+      "/api/v1/users/**",
+      "/api/v1/verification/**",
+      "/v2/api-docs/**",
+      "/v3/api-docs/**",
+      "/swagger-resources/**",
+      "/swagger-ui/**"
+  };
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthFilter;
-    @Autowired
-    private AuthenticationProvider authenticationProvider;
+  @Autowired
+  private JwtAuthenticationFilter jwtAuthFilter;
+  @Autowired
+  private AuthenticationProvider authenticationProvider;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(AUTH_WHITELIST)
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(AUTH_WHITELIST)
+            .permitAll()
+            .anyRequest()
+            .authenticated()
+        )
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authenticationProvider(authenticationProvider)
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+  }
 }

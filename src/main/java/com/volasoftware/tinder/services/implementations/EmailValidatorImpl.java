@@ -7,10 +7,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EmailValidatorImpl implements EmailValidator {
-    @Override
-    public boolean test(String string) {
 
-        //TODO Implement regex for the check!
-        return true;
-    }
+  @Override
+  public boolean test(String string) {
+
+    //TODO Implement regex for the check!
+    return true;
+  }
 }

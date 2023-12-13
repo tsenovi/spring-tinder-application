@@ -12,17 +12,17 @@ import java.nio.file.Paths;
 @Service
 public class FileServiceImpl implements FileService {
 
-    @Override
-    public byte[] readHtml(String filePath) {
-        Resource resource = new ClassPathResource(filePath);
+  @Override
+  public byte[] readHtml(String filePath) {
+    Resource resource = new ClassPathResource(filePath);
 
-        byte[] contentBytes;
-        try {
-            contentBytes = Files.readAllBytes(Paths.get(resource.getURI()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return contentBytes;
+    byte[] contentBytes;
+    try {
+      contentBytes = Files.readAllBytes(Paths.get(resource.getURI()));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+
+    return contentBytes;
+  }
 }

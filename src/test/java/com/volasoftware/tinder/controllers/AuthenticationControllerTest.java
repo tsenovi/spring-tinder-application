@@ -35,103 +35,103 @@ import java.time.Month;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AuthenticationControllerTest {
 
-    private static final String REGISTER_URI = "/api/v1/users/register";
-    private static final String LOGIN_URI = "/api/v1/users/login";
+  private static final String REGISTER_URI = "/api/v1/users/register";
+  private static final String LOGIN_URI = "/api/v1/users/login";
 
-    public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
-            2023,
-            Month.DECEMBER,
-            7,
-            12,
-            30,
-            00,
-            50000);
-    private static final String FIRST_NAME = "Test";
-    private static final String EMAIL = "Test_Test@gmail.com";
-    private static final Long ID = 1L;
-    private static final String LAST_NAME = "Test";
-    private static final String PASSWORD = "Password123";
+  public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
+      2023,
+      Month.DECEMBER,
+      7,
+      12,
+      30,
+      00,
+      50000);
+  private static final String FIRST_NAME = "Test";
+  private static final String EMAIL = "Test_Test@gmail.com";
+  private static final Long ID = 1L;
+  private static final String LAST_NAME = "Test";
+  private static final String PASSWORD = "Password123";
 
-    private MockMvc mockMvc;
-    @MockBean
-    private AuthenticationService authenticationService;
-    @Autowired
-    private JwtService jwtService;
+  private MockMvc mockMvc;
+  @MockBean
+  private AuthenticationService authenticationService;
+  @Autowired
+  private JwtService jwtService;
 
-    @BeforeEach
-    public void setUp(WebApplicationContext webApplicationContext) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+  @BeforeEach
+  public void setUp(WebApplicationContext webApplicationContext) {
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+  }
+
+  @Test
+  void givenRegistrationDetailsWhenEmailNotExistThenCreatedAccount() throws Exception {
+
+    //Given
+    RegisterRequest registerRequest = new RegisterRequest(
+        FIRST_NAME,
+        LAST_NAME,
+        EMAIL,
+        PASSWORD,
+        Gender.MALE);
+    AccountDto accountDto = new AccountDto(
+        FIRST_NAME,
+        LAST_NAME,
+        EMAIL,
+        Gender.MALE);
+
+    // When
+    given(authenticationService.register(any(RegisterRequest.class))).willReturn(accountDto);
+
+    // Then
+    mockMvc
+        .perform(post(REGISTER_URI)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(asJsonString(registerRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.body.firstName").value(FIRST_NAME))
+        .andExpect(jsonPath("$.body.email").value(EMAIL));
+  }
+
+  @Test
+  void testLoginWhenAccountVerifiedThenSuccessfulOperation() throws Exception {
+
+    //Given
+    LoginRequest loginRequest = new LoginRequest(EMAIL, PASSWORD);
+    Account account = generateAccount();
+    String jwtToken = jwtService.generateToken(account);
+    account.setVerified(true);
+    LoginResponse loginResponse = new LoginResponse(jwtToken);
+
+    // When
+    given(authenticationService.login(loginRequest)).willReturn(loginResponse);
+
+    // Then
+    mockMvc
+        .perform(post(LOGIN_URI)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(asJsonString(loginRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value(AccountConstant.LOGGED_IN));
+  }
+
+  private Account generateAccount() {
+    Account account = new Account();
+    account.setId(ID);
+    account.setFirstName(FIRST_NAME);
+    account.setLastName(LAST_NAME);
+    account.setEmail(EMAIL);
+    account.setPassword(PASSWORD);
+    account.setCreatedDate(LOCAL_DATE_TIME);
+    account.setLastModifiedDate(LOCAL_DATE_TIME);
+    account.setGender(Gender.MALE);
+    return account;
+  }
+
+  private static String asJsonString(final Object obj) {
+    try {
+      return new ObjectMapper().writeValueAsString(obj);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
-
-    @Test
-    void givenRegistrationDetailsWhenEmailNotExistThenCreatedAccount() throws Exception {
-
-        //Given
-        RegisterRequest registerRequest = new RegisterRequest(
-                FIRST_NAME,
-                LAST_NAME,
-                EMAIL,
-                PASSWORD,
-                Gender.MALE);
-        AccountDto accountDto = new AccountDto(
-                FIRST_NAME,
-                LAST_NAME,
-                EMAIL,
-                Gender.MALE);
-
-        // When
-        given(authenticationService.register(any(RegisterRequest.class))).willReturn(accountDto);
-
-        // Then
-        mockMvc
-                .perform(post(REGISTER_URI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(registerRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.body.firstName").value(FIRST_NAME))
-                .andExpect(jsonPath("$.body.email").value(EMAIL));
-    }
-
-    @Test
-    void testLoginWhenAccountVerifiedThenSuccessfulOperation() throws Exception {
-
-        //Given
-        LoginRequest loginRequest = new LoginRequest(EMAIL, PASSWORD);
-        Account account = generateAccount();
-        String jwtToken = jwtService.generateToken(account);
-        account.setVerified(true);
-        LoginResponse loginResponse = new LoginResponse(jwtToken);
-
-        // When
-        given(authenticationService.login(loginRequest)).willReturn(loginResponse);
-
-        // Then
-        mockMvc
-                .perform(post(LOGIN_URI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(loginRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(AccountConstant.LOGGED_IN));
-    }
-
-    private Account generateAccount() {
-        Account account = new Account();
-        account.setId(ID);
-        account.setFirstName(FIRST_NAME);
-        account.setLastName(LAST_NAME);
-        account.setEmail(EMAIL);
-        account.setPassword(PASSWORD);
-        account.setCreatedDate(LOCAL_DATE_TIME);
-        account.setLastModifiedDate(LOCAL_DATE_TIME);
-        account.setGender(Gender.MALE);
-        return account;
-    }
-
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+  }
 }

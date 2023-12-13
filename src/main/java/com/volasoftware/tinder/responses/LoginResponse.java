@@ -11,5 +11,5 @@ import lombok.*;
 @ApiModel(value = "Login response", description = "Response for login process")
 public class LoginResponse {
 
-    private String token;
+  private String token;
 }

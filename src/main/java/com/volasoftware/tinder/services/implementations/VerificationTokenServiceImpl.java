@@ -19,47 +19,48 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VerificationTokenServiceImpl implements VerificationTokenService {
 
-    private final VerificationTokenRepository verificationTokenRepository;
+  private final VerificationTokenRepository verificationTokenRepository;
 
-    @Override
-    public VerificationToken generateToken(Account account) {
-        String uuidToken = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken(
-                uuidToken,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(SecurityConstant.TOKEN_EXPIRATION_DAYS),
-                account
-        );
+  @Override
+  public VerificationToken generateToken(Account account) {
+    String uuidToken = UUID.randomUUID().toString();
+    VerificationToken verificationToken = new VerificationToken(
+        uuidToken,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now().plusDays(SecurityConstant.TOKEN_EXPIRATION_DAYS),
+        account
+    );
 
-        return verificationTokenRepository.save(verificationToken);
+    return verificationTokenRepository.save(verificationToken);
+  }
+
+  @Override
+  public Account verifyToken(String token) {
+
+    VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+        .orElseThrow(() -> new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED));
+
+    isEmailAlreadyVerified(verificationToken);
+
+    LocalDateTime tokenExpirationDate = verificationToken.getExpiresAt();
+    isTokenExpired(tokenExpirationDate);
+
+    verificationToken.setVerifiedAt(LocalDateTime.now());
+    VerificationToken updatedVerificationToken = verificationTokenRepository.save(
+        verificationToken);
+    return updatedVerificationToken.getAccount();
+  }
+
+  private void isTokenExpired(LocalDateTime expiresAt) {
+    if (expiresAt.isBefore(LocalDateTime.now())) {
+      throw new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED);
     }
+  }
 
-    @Override
-    public Account verifyToken(String token) {
-
-        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED));
-
-        isEmailAlreadyVerified(verificationToken);
-
-        LocalDateTime tokenExpirationDate = verificationToken.getExpiresAt();
-        isTokenExpired(tokenExpirationDate);
-
-        verificationToken.setVerifiedAt(LocalDateTime.now());
-        VerificationToken updatedVerificationToken = verificationTokenRepository.save(verificationToken);
-        return updatedVerificationToken.getAccount();
+  private void isEmailAlreadyVerified(VerificationToken verificationToken) {
+    if (verificationToken.getVerifiedAt() != null) {
+      throw new EmailAlreadyVerifiedException(MailConstant.ALREADY_CONFIRMED);
     }
-
-    private void isTokenExpired(LocalDateTime expiresAt) {
-        if (expiresAt.isBefore(LocalDateTime.now())) {
-            throw new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED);
-        }
-    }
-
-    private void isEmailAlreadyVerified(VerificationToken verificationToken) {
-        if (verificationToken.getVerifiedAt() != null) {
-            throw new EmailAlreadyVerifiedException(MailConstant.ALREADY_CONFIRMED);
-        }
-    }
+  }
 }

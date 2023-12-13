@@ -13,30 +13,30 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class VerificationToken extends Audit {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+  @Id
+  @GeneratedValue
+  private Long id;
 
-    @Column(nullable = false)
-    private String token;
+  @Column(nullable = false)
+  private String token;
 
-    @Column(nullable = false)
-    private LocalDateTime expiresAt;
+  @Column(nullable = false)
+  private LocalDateTime expiresAt;
 
-    private LocalDateTime verifiedAt;
+  private LocalDateTime verifiedAt;
 
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "account_id")
-    private Account account;
+  @ManyToOne
+  @JoinColumn(nullable = false, name = "account_id")
+  private Account account;
 
-    public VerificationToken(String token,
-                             LocalDateTime createdDate,
-                             LocalDateTime lastModifiedDate,
-                             LocalDateTime expiresAt,
-                             Account account) {
-        super(createdDate, lastModifiedDate);
-        this.token = token;
-        this.expiresAt = expiresAt;
-        this.account = account;
-    }
+  public VerificationToken(String token,
+      LocalDateTime createdDate,
+      LocalDateTime lastModifiedDate,
+      LocalDateTime expiresAt,
+      Account account) {
+    super(createdDate, lastModifiedDate);
+    this.token = token;
+    this.expiresAt = expiresAt;
+    this.account = account;
+  }
 }
