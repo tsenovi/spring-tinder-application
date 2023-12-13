@@ -77,9 +77,7 @@ public class AuthenticationControllerTest {
             FIRST_NAME,
             LAST_NAME,
             EMAIL,
-            Gender.MALE,
-            false,
-            false);
+            Gender.MALE);
 
         // When
         given(authenticationService.register(any(RegisterRequest.class))).willReturn(accountDto);

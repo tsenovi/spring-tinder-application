@@ -28,7 +28,4 @@ public class AccountDto {
     @ApiModelProperty(value = "Gender", example = "MALE", required = true)
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
-    private boolean isLocked;
-    private boolean isVerified;
 }
