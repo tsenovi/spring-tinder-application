@@ -1,6 +1,7 @@
 package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.constants.AccountConstant;
+import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
@@ -85,5 +86,24 @@ public class AuthenticationController {
             AccountConstant.DETAILS,
             HttpStatus.OK,
             authenticationService.getAccountByEmail(principal.getName()));
+    }
+
+    @ApiOperation(value = "Update Profile of logged Account")
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "Successfully operation!"),
+            @ApiResponse(responseCode = "400", description = "Bad request!")
+        }
+    )
+    @PutMapping(value = "/profile")
+    public ResponseEntity<?> changeProfile(
+        @ApiParam(value = "Updated account request", required = true)
+        @Valid
+        @RequestBody AccountDto accountDto, Principal principal) {
+
+        return ResponseHandler.generateResponse(
+            AccountConstant.UPDATED,
+            HttpStatus.OK,
+            authenticationService.updateAccount(accountDto, principal));
     }
 }
