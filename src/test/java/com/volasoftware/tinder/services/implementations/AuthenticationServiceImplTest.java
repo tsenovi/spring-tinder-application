@@ -36,6 +36,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,216 +47,229 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 @SpringBootTest
 class AuthenticationServiceImplTest {
 
-    public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
-            2023,
-            Month.DECEMBER,
-            7,
-            12,
-            30,
-            00,
-            50000);
-    private static final String FIRST_NAME = "Test";
-    private static final String EMAIL = "Test_Test@gmail.com";
-    private static final String WRONG_EMAIL = "XXXXXXXXXXXXXXXXXXX";
-    private static final Long ID = 1L;
-    private static final String LAST_NAME = "Test";
-    private static final String PASSWORD = "password";
-    private static final String WRONG_PASSWORD = "XXXXXXXXXXXXXXXXXXXXX";
+  public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
+      2023,
+      Month.DECEMBER,
+      7,
+      12,
+      30,
+      00,
+      50000);
 
-    @MockBean
-    private AccountRepository authenticationRepository;
+  private static final PageRequest pageRequest = PageRequest.of(0, 5);
+  private static final String FIRST_NAME = "Test";
+  private static final String EMAIL = "Test_Test@gmail.com";
+  private static final String WRONG_EMAIL = "XXXXXXXXXXXXXXXXXXX";
+  private static final Long ID = 1L;
+  private static final String LAST_NAME = "Test";
+  private static final String PASSWORD = "password";
+  private static final String WRONG_PASSWORD = "XXXXXXXXXXXXXXXXXXXXX";
 
-    @MockBean
-    private VerificationTokenRepository verificationTokenRepository;
+  @MockBean
+  private AccountRepository authenticationRepository;
 
-    @MockBean
-    private AuthenticationManager authenticationManager;
+  @MockBean
+  private VerificationTokenRepository verificationTokenRepository;
 
-    @Autowired
-    @InjectMocks
-    private AuthenticationServiceImpl authenticationService;
+  @MockBean
+  private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private AccountMapper accountMapper;
+  @Autowired
+  @InjectMocks
+  private AuthenticationServiceImpl authenticationService;
 
-    @Test
-    void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
-        List<Account> accounts = getAccounts();
-        when(authenticationRepository.findAll()).thenReturn(accounts);
-        List<AccountDto> result = authenticationService.getAll();
+  @Autowired
+  private AccountMapper accountMapper;
 
-        assertEquals(2, result.size());
-    }
+  @Test
+  void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
+    List<Account> accounts = getAccounts();
+    Page<Account> accountsPage = new PageImpl<>(accounts);
+    when(authenticationRepository.findAll(pageRequest)).thenReturn(accountsPage);
 
-    @Test
-    void testGettingAllAccountsWhenGivenListOfAccountsThenExpectedListIsNotEmpty() {
-        List<Account> accounts = getAccounts();
-        when(authenticationRepository.findAll()).thenReturn(accounts);
+    List<AccountDto> result = authenticationService.getAccounts(pageRequest);
 
-        List<AccountDto> result = authenticationService.getAll();
+    assertEquals(2, result.size());
+  }
 
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-    }
+  @Test
+  void testGettingAllAccountsWhenGivenListOfAccountsThenExpectedListIsNotEmpty() {
+    List<Account> accounts = getAccounts();
+    Page<Account> accountsPage = new PageImpl<>(accounts);
 
-    @Test
-    void testCreatingAccountWhenEmailIsNotTakenThenCreationIsSuccessful() {
-        RegisterRequest registerRequest = getRegisterRequest(FIRST_NAME, LAST_NAME, EMAIL, PASSWORD,
-                Gender.MALE);
-        Account account = generateAccount();
-        VerificationToken verificationToken = generateVerificationToken(account);
+    when(authenticationRepository.findAll(pageRequest)).thenReturn(accountsPage);
 
-        when(authenticationRepository.save(any(Account.class))).thenReturn(account);
-        when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(verificationToken);
+    List<AccountDto> result = authenticationService.getAccounts(pageRequest);
 
-        AccountDto result = authenticationService.register(registerRequest);
+    assertNotNull(result);
+    assertFalse(result.isEmpty());
+  }
 
-        assertEquals(result.getEmail(), registerRequest.getEmail());
-    }
+  @Test
+  void testCreatingAccountWhenEmailIsNotTakenThenCreationIsSuccessful() {
+    RegisterRequest registerRequest = getRegisterRequest(FIRST_NAME, LAST_NAME, EMAIL, PASSWORD,
+        Gender.MALE);
+    Account account = generateAccount();
+    VerificationToken verificationToken = generateVerificationToken(account);
 
-    @Test
-    void testCreatingAccountWhenEmailIsTakenThenExceptionIsThrown() {
-        RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com", "password",
-                Gender.MALE);
+    when(authenticationRepository.save(any(Account.class))).thenReturn(account);
+    when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(
+        verificationToken);
 
-        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-        when(authenticationRepository.save(captor.capture())).thenThrow(new EmailIsTakenException(MailConstant.ALREADY_TAKEN));
+    AccountDto result = authenticationService.register(registerRequest);
 
-        Exception exception = assertThrows(EmailIsTakenException.class,
-                () -> authenticationService.register(registerRequest));
+    assertEquals(result.getEmail(), registerRequest.getEmail());
+  }
 
-        String expectedMessage = MailConstant.ALREADY_TAKEN;
-        String actualMessage = exception.getMessage();
+  @Test
+  void testCreatingAccountWhenEmailIsTakenThenExceptionIsThrown() {
+    RegisterRequest registerRequest = getRegisterRequest("alex", "t", "alex@gmail.com", "password",
+        Gender.MALE);
 
-        assertEquals(actualMessage, expectedMessage);
-    }
+    ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+    when(authenticationRepository.save(captor.capture())).thenThrow(
+        new EmailIsTakenException(MailConstant.ALREADY_TAKEN));
 
-    @Test
-    void testGettingAccountByEmailWhenGivenEmailExistsThenReturnActualAccount() {
-        Account account = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
-        String email = "alex@gmail.com";
-        given(authenticationRepository.findOneByEmail(email)).willReturn(Optional.of(account));
+    Exception exception = assertThrows(EmailIsTakenException.class,
+        () -> authenticationService.register(registerRequest));
 
-        AccountDto accountFoundByEmail = authenticationService.getAccountByEmail(email);
+    String expectedMessage = MailConstant.ALREADY_TAKEN;
+    String actualMessage = exception.getMessage();
 
-        assertEquals(email, accountFoundByEmail.getEmail());
-    }
+    assertEquals(actualMessage, expectedMessage);
+  }
 
-    @Test
-    void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
-        String email = "phil@gmail.com";
-        given(authenticationRepository.findOneByEmail(email)).willThrow(new AccountNotFoundException("Account was not found"));
+  @Test
+  void testGettingAccountByEmailWhenGivenEmailExistsThenReturnActualAccount() {
+    Account account = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
+    String email = "alex@gmail.com";
+    given(authenticationRepository.findOneByEmail(email)).willReturn(Optional.of(account));
 
-        Exception exception = assertThrows(AccountNotFoundException.class,
-                () -> authenticationService.getAccountByEmail(email));
+    AccountDto accountFoundByEmail = authenticationService.getAccountByEmail(email);
 
-        String expectedMessage = "Account was not found";
-        String actualMessage = exception.getMessage();
+    assertEquals(email, accountFoundByEmail.getEmail());
+  }
 
-        assertTrue(actualMessage.contains(expectedMessage));
-    }
+  @Test
+  void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
+    String email = "phil@gmail.com";
+    given(authenticationRepository.findOneByEmail(email)).willThrow(
+        new AccountNotFoundException("Account was not found"));
 
-    @Test
-    void testLoginWhenAccountNotFoundThenExceptionThrown() {
-        LoginRequest loginRequest = generateLoginRequest(null, null);
+    Exception exception = assertThrows(AccountNotFoundException.class,
+        () -> authenticationService.getAccountByEmail(email));
 
-        assertThrows(AccountNotFoundException.class, () -> authenticationService.login(loginRequest));
-    }
+    String expectedMessage = "Account was not found";
+    String actualMessage = exception.getMessage();
 
-    @Test
-    void testLoginWhenCredentialsAreWrongThenExceptionThrown() {
-        LoginRequest loginRequest = generateLoginRequest(WRONG_EMAIL, WRONG_PASSWORD);
-        Account account = generateAccount();
-        account.setVerified(true);
+    assertTrue(actualMessage.contains(expectedMessage));
+  }
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(Optional.of(account));
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException(AccountConstant.WRONG_PASSWORD));
+  @Test
+  void testLoginWhenAccountNotFoundThenExceptionThrown() {
+    LoginRequest loginRequest = generateLoginRequest(null, null);
 
-        assertThrows(BadCredentialsException.class, () -> authenticationService.login(loginRequest));
-    }
+    assertThrows(AccountNotFoundException.class, () -> authenticationService.login(loginRequest));
+  }
 
-    @Test
-    void testLoginWhenAccountNotVerifiedThenExceptionThrown() {
-        LoginRequest loginRequest = generateLoginRequest(EMAIL, PASSWORD);
-        Account account = generateAccount();
+  @Test
+  void testLoginWhenCredentialsAreWrongThenExceptionThrown() {
+    LoginRequest loginRequest = generateLoginRequest(WRONG_EMAIL, WRONG_PASSWORD);
+    Account account = generateAccount();
+    account.setVerified(true);
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(Optional.of(account));
+    given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+        Optional.of(account));
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenThrow(new BadCredentialsException(AccountConstant.WRONG_PASSWORD));
 
-        assertThrows(AccountNotVerifiedException.class, () -> authenticationService.login(loginRequest));
-    }
+    assertThrows(BadCredentialsException.class, () -> authenticationService.login(loginRequest));
+  }
 
-    @Test
-    void testLoginWhenAccountVerifiedThenSuccessOperation() {
-        LoginRequest loginRequest = generateLoginRequest(EMAIL, PASSWORD);
-        Account account = generateAccount();
-        account.setVerified(true);
+  @Test
+  void testLoginWhenAccountNotVerifiedThenExceptionThrown() {
+    LoginRequest loginRequest = generateLoginRequest(EMAIL, PASSWORD);
+    Account account = generateAccount();
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(Optional.of(account));
+    given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+        Optional.of(account));
 
-        LoginResponse loginResponse = authenticationService.login(loginRequest);
+    assertThrows(AccountNotVerifiedException.class,
+        () -> authenticationService.login(loginRequest));
+  }
 
-        assertNotNull(loginResponse.getToken());
-    }
+  @Test
+  void testLoginWhenAccountVerifiedThenSuccessOperation() {
+    LoginRequest loginRequest = generateLoginRequest(EMAIL, PASSWORD);
+    Account account = generateAccount();
+    account.setVerified(true);
 
-    private LoginRequest generateLoginRequest(String email, String password) {
-        return new LoginRequest(email, password);
-    }
+    given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+        Optional.of(account));
 
-    private List<Account> getAccounts() {
-        Account account1 = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
+    LoginResponse loginResponse = authenticationService.login(loginRequest);
 
-        Account account2 = getAccount("toni", "t", "toni@gmail.com", "password", Gender.FEMALE);
+    assertNotNull(loginResponse.getToken());
+  }
 
-        return Arrays.asList(account1, account2);
-    }
+  private LoginRequest generateLoginRequest(String email, String password) {
+    return new LoginRequest(email, password);
+  }
 
-    private Account getAccount(String firstName, String lastName, String email, String password,
-                               Gender gender) {
-        Account account = new Account();
-        account.setFirstName(firstName);
-        account.setLastName(lastName);
-        account.setEmail(email);
-        account.setPassword(password);
-        account.setGender(gender);
+  private List<Account> getAccounts() {
+    Account account1 = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
 
-        return account;
-    }
+    Account account2 = getAccount("toni", "t", "toni@gmail.com", "password", Gender.FEMALE);
 
-    private RegisterRequest getRegisterRequest(String firstName, String lastName, String email,
-                                               String password, Gender gender) {
-        RegisterRequest registerRequest = new RegisterRequest();
-        registerRequest.setFirstName(firstName);
-        registerRequest.setLastName(lastName);
-        registerRequest.setEmail(email);
-        registerRequest.setPassword(password);
-        registerRequest.setGender(gender);
+    return Arrays.asList(account1, account2);
+  }
 
-        return registerRequest;
-    }
+  private Account getAccount(String firstName, String lastName, String email, String password,
+      Gender gender) {
+    Account account = new Account();
+    account.setFirstName(firstName);
+    account.setLastName(lastName);
+    account.setEmail(email);
+    account.setPassword(password);
+    account.setGender(gender);
 
-    private VerificationToken generateVerificationToken(Account account) {
-        VerificationToken verificationToken = new VerificationToken();
-        String randomToken = UUID.randomUUID().toString();
-        verificationToken.setToken(randomToken);
-        verificationToken.setAccount(account);
-        verificationToken.setCreatedDate(LOCAL_DATE_TIME);
-        verificationToken.setLastModifiedDate(LOCAL_DATE_TIME);
-        verificationToken.setExpiresAt(LOCAL_DATE_TIME.plusDays(2));
+    return account;
+  }
 
-        return verificationToken;
-    }
+  private RegisterRequest getRegisterRequest(String firstName, String lastName, String email,
+      String password, Gender gender) {
+    RegisterRequest registerRequest = new RegisterRequest();
+    registerRequest.setFirstName(firstName);
+    registerRequest.setLastName(lastName);
+    registerRequest.setEmail(email);
+    registerRequest.setPassword(password);
+    registerRequest.setGender(gender);
 
-    private Account generateAccount() {
-        Account account = new Account();
-        account.setId(ID);
-        account.setFirstName(FIRST_NAME);
-        account.setLastName(LAST_NAME);
-        account.setEmail(EMAIL);
-        account.setPassword(PASSWORD);
-        account.setCreatedDate(LOCAL_DATE_TIME);
-        account.setLastModifiedDate(LOCAL_DATE_TIME);
-        account.setGender(Gender.MALE);
-        return account;
-    }
+    return registerRequest;
+  }
+
+  private VerificationToken generateVerificationToken(Account account) {
+    VerificationToken verificationToken = new VerificationToken();
+    String randomToken = UUID.randomUUID().toString();
+    verificationToken.setToken(randomToken);
+    verificationToken.setAccount(account);
+    verificationToken.setCreatedDate(LOCAL_DATE_TIME);
+    verificationToken.setLastModifiedDate(LOCAL_DATE_TIME);
+    verificationToken.setExpiresAt(LOCAL_DATE_TIME.plusDays(2));
+
+    return verificationToken;
+  }
+
+  private Account generateAccount() {
+    Account account = new Account();
+    account.setId(ID);
+    account.setFirstName(FIRST_NAME);
+    account.setLastName(LAST_NAME);
+    account.setEmail(EMAIL);
+    account.setPassword(PASSWORD);
+    account.setCreatedDate(LOCAL_DATE_TIME);
+    account.setLastModifiedDate(LOCAL_DATE_TIME);
+    account.setGender(Gender.MALE);
+    return account;
+  }
 }

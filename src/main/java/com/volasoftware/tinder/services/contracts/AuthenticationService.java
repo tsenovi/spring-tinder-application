@@ -7,19 +7,20 @@ import com.volasoftware.tinder.responses.LoginResponse;
 
 import java.security.Principal;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 
 public interface AuthenticationService {
 
-    List<AccountDto> getAll();
+  List<AccountDto> getAccounts(Pageable pageable);
 
-    AccountDto register(RegisterRequest registerRequest);
+  AccountDto register(RegisterRequest registerRequest);
 
-    AccountDto getAccountByEmail(String email);
+  AccountDto getAccountByEmail(String email);
 
-    AccountDto verifyAccount(String token);
+  AccountDto verifyAccount(String token);
 
-    LoginResponse login(LoginRequest loginRequest);
+  LoginResponse login(LoginRequest loginRequest);
 
-    AccountDto updateAccount(AccountDto accountDto, Principal principal);
+  AccountDto updateAccount(AccountDto accountDto, Principal principal);
 }
