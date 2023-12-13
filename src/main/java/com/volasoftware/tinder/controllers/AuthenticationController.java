@@ -96,6 +96,7 @@ public class AuthenticationController {
   @PutMapping(value = "/profile")
   public ResponseEntity<?> changeProfile(
       @ApiParam(value = "Updated account request", required = true)
+      @Valid
       @RequestBody AccountDto accountDto, Principal principal) {
 
     return ResponseHandler.generateResponse(
