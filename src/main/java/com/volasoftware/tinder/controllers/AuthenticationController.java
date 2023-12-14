@@ -1,6 +1,7 @@
 package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.constants.AccountConstant;
+import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
@@ -119,7 +120,7 @@ public class AuthenticationController {
         Principal principal) {
 
         return ResponseHandler.generateResponse(
-            AccountConstant.PASSWORD_RECOVERED,
+            MailConstant.SENT,
             HttpStatus.OK,
             authenticationService.recoverPassword(principal));
     }
