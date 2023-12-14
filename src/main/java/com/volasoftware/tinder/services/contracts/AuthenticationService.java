@@ -5,12 +5,15 @@ import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.LoginResponse;
 
+import java.security.Principal;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 public interface AuthenticationService {
 
-    List<AccountDto> getAll();
+    List<AccountDto> getAccounts(Pageable pageable);
 
     AccountDto register(RegisterRequest registerRequest);
 
@@ -19,4 +22,6 @@ public interface AuthenticationService {
     AccountDto verifyAccount(String token);
 
     LoginResponse login(LoginRequest loginRequest);
+
+    AccountDto updateAccount(AccountDto accountDto, Principal principal);
 }

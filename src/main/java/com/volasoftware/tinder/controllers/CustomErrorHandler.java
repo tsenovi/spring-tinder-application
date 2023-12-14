@@ -26,7 +26,8 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({
         EmailIsTakenException.class,
         AccountNotVerifiedException.class,
-        VerificationTokenExpiredException.class
+        VerificationTokenExpiredException.class,
+        AccountNotOwnerException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleBadRequestException(RuntimeException exception) {

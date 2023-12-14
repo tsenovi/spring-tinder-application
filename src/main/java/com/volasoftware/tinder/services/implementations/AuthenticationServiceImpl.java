@@ -12,11 +12,15 @@ import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.responses.LoginResponse;
 import com.volasoftware.tinder.services.contracts.*;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,10 +55,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private String verifyUrl;
 
     @Override
-    public List<AccountDto> getAll() {
-        List<Account> accounts = accountRepository.findAll();
+    public List<AccountDto> getAccounts(Pageable pageable) {
+        Page<Account> accountsPage = accountRepository.findAll(pageable);
+        List<Account> accountsList = new ArrayList<>();
 
-        return accountMapper.accountListToAccountDtoList(accounts);
+        while (!accountsPage.isEmpty()) {
+            accountsPage.forEach(accountsList::add);
+
+            accountsPage = accountRepository.findAll(pageable.next());
+        }
+
+        return accountMapper.accountListToAccountDtoList(accountsList);
     }
 
     @Override
@@ -109,6 +120,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return new LoginResponse(jwtService.generateToken(account));
+    }
+
+    @Override
+    public AccountDto updateAccount(AccountDto accountDto, Principal principal) {
+        Account account = findAccountByEmail(accountDto.getEmail());
+        if (!account.getEmail().equals(principal.getName())) {
+            throw new AccountNotOwnerException(AccountConstant.NOT_OWNER);
+        }
+
+        account.setFirstName(accountDto.getFirstName());
+        account.setLastName(accountDto.getLastName());
+        account.setEmail(accountDto.getEmail());
+        account.setGender(accountDto.getGender());
+
+        return accountMapper.accountToAccountDto(accountRepository.save(account));
+    }
+
+    private Account findAccountByEmail(String email) {
+        return accountRepository.findOneByEmail(email)
+            .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
     }
 
     private void sendVerificationMail(String receiver, String token) {

@@ -36,6 +36,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,6 +55,7 @@ class AuthenticationServiceImplTest {
         30,
         00,
         50000);
+    private static final PageRequest pageRequest = PageRequest.of(0, 5);
     private static final String FIRST_NAME = "Test";
     private static final String EMAIL = "Test_Test@gmail.com";
     private static final String WRONG_EMAIL = "XXXXXXXXXXXXXXXXXXX";
@@ -79,8 +83,9 @@ class AuthenticationServiceImplTest {
     @Test
     void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
         List<Account> accounts = getAccounts();
-        when(authenticationRepository.findAll()).thenReturn(accounts);
-        List<AccountDto> result = authenticationService.getAll();
+        Page<Account> accountsPage = new PageImpl<>(accounts);
+        when(authenticationRepository.findAll(pageRequest)).thenReturn(accountsPage);
+        List<AccountDto> result = authenticationService.getAccounts(pageRequest);
 
         assertEquals(2, result.size());
     }
@@ -88,9 +93,10 @@ class AuthenticationServiceImplTest {
     @Test
     void testGettingAllAccountsWhenGivenListOfAccountsThenExpectedListIsNotEmpty() {
         List<Account> accounts = getAccounts();
-        when(authenticationRepository.findAll()).thenReturn(accounts);
+        Page<Account> accountsPage = new PageImpl<>(accounts);
+        when(authenticationRepository.findAll(pageRequest)).thenReturn(accountsPage);
 
-        List<AccountDto> result = authenticationService.getAll();
+        List<AccountDto> result = authenticationService.getAccounts(pageRequest);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());

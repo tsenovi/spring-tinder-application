@@ -45,9 +45,7 @@ class VerificationControllerTest {
             "John",
             "Doe",
             "john@gmail.com",
-            Gender.MALE,
-            false,
-            false);
+            Gender.MALE);
 
         // When
         given(authenticationService.verifyAccount(token)).willReturn(accountDto);
