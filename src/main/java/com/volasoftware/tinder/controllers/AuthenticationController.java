@@ -120,7 +120,7 @@ public class AuthenticationController {
         Principal principal) {
 
         return ResponseHandler.generateResponse(
-            MailConstant.SENT,
+            MailConstant.PASSWORD_RECOVERY,
             HttpStatus.OK,
             authenticationService.recoverPassword(principal));
     }

@@ -157,7 +157,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private void sendRecoveredPasswordMail(String receiver, String recoveredPassword) {
         byte[] contentBytes = fileService.readHtml(FilePathConstant.PASSWORD_RECOVERY_EMAIL_HTML);
-        String content = new String(contentBytes).replace(HtmlConstant.GENERATED_PASSWORD, recoveredPassword);
+        String content = new String(contentBytes).replace(
+            HtmlConstant.PASSWORD_ELEMENT_VALUE,
+            recoveredPassword
+        );
 
         emailService.send(receiver, content);
     }
