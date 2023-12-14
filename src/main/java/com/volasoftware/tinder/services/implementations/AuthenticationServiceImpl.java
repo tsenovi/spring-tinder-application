@@ -53,6 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${server.verify-url}")
     private String verifyUrl;
 
+    @Override
     public List<AccountDto> getAccounts(Pageable pageable) {
         Page<Account> accountsPage = accountRepository.findAll(pageable);
         List<Account> accountsList = accountsPage.getContent();
