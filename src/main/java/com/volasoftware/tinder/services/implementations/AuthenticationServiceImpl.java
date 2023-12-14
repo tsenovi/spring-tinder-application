@@ -13,6 +13,7 @@ import com.volasoftware.tinder.responses.LoginResponse;
 import com.volasoftware.tinder.services.contracts.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,7 +57,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public List<AccountDto> getAccounts(Pageable pageable) {
         Page<Account> accountsPage = accountRepository.findAll(pageable);
-        List<Account> accountsList = accountsPage.getContent();
+        List<Account> accountsList = new ArrayList<>();
+
+        while (!accountsPage.isEmpty()) {
+            accountsPage.forEach(accountsList::add);
+
+            accountsPage = accountRepository.findAll(pageable.next());
+        }
 
         return accountMapper.accountListToAccountDtoList(accountsList);
     }
