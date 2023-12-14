@@ -150,9 +150,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         account.setPassword(passwordEncoder.encode(randomPassword));
-        accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
 
-        return accountMapper.accountToAccountDto(account);
+        return accountMapper.accountToAccountDto(savedAccount);
     }
 
     private void sendRecoveredPasswordMail(String receiver, String recoveredPassword) {
