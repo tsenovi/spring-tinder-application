@@ -106,4 +106,21 @@ public class AuthenticationController {
             HttpStatus.OK,
             authenticationService.updateAccount(accountDto, principal));
     }
+
+    @ApiOperation(value = "Recover password of logged Account")
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation!")
+        }
+    )
+    @PostMapping(value = "/password-recovery")
+    public ResponseEntity<?> recoverPassword(
+        @ApiParam(value = "Logged account", required = true)
+        Principal principal) {
+
+        return ResponseHandler.generateResponse(
+            AccountConstant.PASSWORD_RECOVERED,
+            HttpStatus.OK,
+            authenticationService.recoverPassword(principal));
+    }
 }
