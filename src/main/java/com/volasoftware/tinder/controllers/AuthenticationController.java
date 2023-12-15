@@ -1,6 +1,7 @@
 package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.constants.AccountConstant;
+import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.dtos.AccountDto;
 import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
@@ -105,5 +106,22 @@ public class AuthenticationController {
             AccountConstant.UPDATED,
             HttpStatus.OK,
             authenticationService.updateAccount(accountDto, principal));
+    }
+
+    @ApiOperation(value = "Recover password of logged Account")
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation!")
+        }
+    )
+    @PostMapping(value = "/password-recovery")
+    public ResponseEntity<?> recoverPassword(
+        @ApiParam(value = "Logged account", required = true)
+        Principal principal) {
+
+        return ResponseHandler.generateResponse(
+            MailConstant.PASSWORD_RECOVERY,
+            HttpStatus.OK,
+            authenticationService.recoverPassword(principal));
     }
 }

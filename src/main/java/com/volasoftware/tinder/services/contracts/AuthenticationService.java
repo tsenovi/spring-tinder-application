@@ -24,4 +24,6 @@ public interface AuthenticationService {
     LoginResponse login(LoginRequest loginRequest);
 
     AccountDto updateAccount(AccountDto accountDto, Principal principal);
+
+    AccountDto recoverPassword(Principal principal);
 }

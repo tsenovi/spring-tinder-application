@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -135,6 +136,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setGender(accountDto.getGender());
 
         return accountMapper.accountToAccountDto(accountRepository.save(account));
+    }
+
+    @Override
+    public AccountDto recoverPassword(Principal principal) {
+        Account account = findAccountByEmail(principal.getName());
+        String randomPassword = UUID.randomUUID().toString();
+
+        try {
+            sendRecoveredPasswordMail(account.getEmail(), randomPassword);
+        } catch (Exception e) {
+            throw new EmailIsNotValidException(MailConstant.NOT_VALID);
+        }
+
+        account.setPassword(passwordEncoder.encode(randomPassword));
+        Account savedAccount = accountRepository.save(account);
+
+        return accountMapper.accountToAccountDto(savedAccount);
+    }
+
+    private void sendRecoveredPasswordMail(String receiver, String recoveredPassword) {
+        byte[] contentBytes = fileService.readHtml(FilePathConstant.PASSWORD_RECOVERY_EMAIL_HTML);
+        String content = new String(contentBytes).replace(
+            HtmlConstant.PASSWORD_ELEMENT_VALUE,
+            recoveredPassword
+        );
+
+        emailService.send(receiver, content);
     }
 
     private Account findAccountByEmail(String email) {
