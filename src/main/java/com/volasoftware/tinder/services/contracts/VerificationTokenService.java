@@ -8,4 +8,6 @@ public interface VerificationTokenService {
     VerificationToken generateToken(Account account);
 
     Account verifyToken(String token);
+
+    VerificationToken regenerateToken(Account account);
 }

@@ -55,7 +55,9 @@ public class VerificationController {
     @ApiOperation(value = "Resend verification mail")
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation!")
+            @ApiResponse(responseCode = "200", description = "Successful operation!"),
+            @ApiResponse(responseCode = "404", description = "Account not found!"),
+            @ApiResponse(responseCode = "406", description = "Account already verified!")
         }
     )
     @PostMapping(value = "/resend-verification-email")

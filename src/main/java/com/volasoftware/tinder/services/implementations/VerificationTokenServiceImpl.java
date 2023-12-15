@@ -53,6 +53,26 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         return updatedVerificationToken.getAccount();
     }
 
+    @Override
+    public VerificationToken regenerateToken(Account account) {
+        Optional<VerificationToken> optionalVerificationToken = verificationTokenRepository
+            .findByAccountId(account.getId());
+
+        if (optionalVerificationToken.isEmpty()) {
+            return generateToken(account);
+        }
+
+        VerificationToken verificationToken = optionalVerificationToken.get();
+        String uuidToken = UUID.randomUUID().toString();
+        LocalDateTime currentTime = LocalDateTime.now();
+        verificationToken.setToken(uuidToken);
+        verificationToken.setLastModifiedDate(currentTime);
+        verificationToken.setExpiresAt(currentTime.plusDays(SecurityConstant.TOKEN_EXPIRATION_DAYS)
+        );
+
+        return verificationTokenRepository.save(verificationToken);
+    }
+
     private void isTokenExpired(LocalDateTime expiresAt) {
         if (expiresAt.isBefore(LocalDateTime.now())) {
             throw new VerificationTokenExpiredException(SecurityConstant.TOKEN_EXPIRED);
