@@ -2,6 +2,7 @@ package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.constants.MailConstant;
+import com.volasoftware.tinder.dtos.EmailRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import io.swagger.annotations.ApiOperation;
@@ -51,8 +52,6 @@ public class VerificationController {
             authenticationService.verifyAccount(token));
     }
 
-
-
     @ApiOperation(value = "Resend verification mail")
     @ApiResponses(
         value = {
@@ -66,7 +65,7 @@ public class VerificationController {
         @RequestBody EmailRequest emailRequest) {
 
         return ResponseHandler.generateResponse(
-            MailConstant.RESEND_VERIFICATION_MAIL,
+            MailConstant.SEND_VERIFICATION_MAIL,
             HttpStatus.OK,
             authenticationService.reverify(emailRequest));
     }
