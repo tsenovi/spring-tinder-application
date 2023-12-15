@@ -1,13 +1,13 @@
 package com.volasoftware.tinder.services.contracts;
 
 import com.volasoftware.tinder.dtos.AccountDto;
+import com.volasoftware.tinder.dtos.EmailDto;
 import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.LoginResponse;
 
 import java.security.Principal;
 import java.util.List;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
@@ -26,4 +26,6 @@ public interface AuthenticationService {
     AccountDto updateAccount(AccountDto accountDto, Principal principal);
 
     AccountDto recoverPassword(Principal principal);
+
+    EmailDto reverify(EmailDto emailDto);
 }
