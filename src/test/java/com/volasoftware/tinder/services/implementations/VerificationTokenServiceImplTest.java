@@ -28,14 +28,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 class VerificationTokenServiceImplTest {
 
-    public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(
-        2023,
-        Month.DECEMBER,
-        12,
-        12,
-        30,
-        00,
-        50000);
+    public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.now();
     private static final String FIRST_NAME = "Test";
     private static final String EMAIL = "Test_Test@gmail.com";
     private static final Long ID = 1L;
@@ -124,6 +117,50 @@ class VerificationTokenServiceImplTest {
 
         assertNotNull(expectedAccount);
         assertEquals(account.getEmail(), expectedAccount.getEmail());
+    }
+
+    @Test
+    void testRegenerateTokenWhenTokenDoesNotExistThenGenerateNewToken() {
+        //given
+        Account account = generateAccount();
+
+        when(repository.findByAccountId(account.getId())).thenReturn(Optional.empty());
+
+        VerificationToken newToken = generateVerificationToken(account);
+        when(service.generateToken(account)).thenReturn(newToken);
+        when(repository.save(any())).thenReturn(newToken);
+
+        //when
+        VerificationToken resultToken = service.regenerateToken(account);
+
+        //then
+        assertNotNull(resultToken);
+        assertEquals(account, resultToken.getAccount());
+        verify(repository, times(1)).save(any());
+    }
+
+    @Test
+    void testRegenerateTokenWhenTokenExistThenUpdateToken() {
+        //given
+        Account account = generateAccount();
+        VerificationToken initialToken = generateVerificationToken(account);
+        String uuidInitialToken = initialToken.getToken();
+
+        when(repository.findByAccountId(account.getId())).thenReturn(Optional.of(initialToken));
+        when(repository.save(initialToken))
+            .thenAnswer(invocation -> {
+                VerificationToken savedToken = invocation.getArgument(0);
+                savedToken.setToken(UUID.randomUUID().toString());
+                return savedToken;
+            });
+
+        //when
+        VerificationToken actualToken = service.regenerateToken(account);
+
+        //then
+        assertNotNull(actualToken);
+        assertNotEquals(actualToken.getToken(), uuidInitialToken);
+        verify(repository, times(1)).save(initialToken);
     }
 
     private VerificationToken generateVerificationToken(Account account) {

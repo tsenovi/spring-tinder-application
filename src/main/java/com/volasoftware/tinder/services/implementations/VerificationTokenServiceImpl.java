@@ -24,11 +24,12 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Override
     public VerificationToken generateToken(Account account) {
         String uuidToken = UUID.randomUUID().toString();
+        LocalDateTime currentTime = LocalDateTime.now();
         VerificationToken verificationToken = new VerificationToken(
             uuidToken,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            LocalDateTime.now().plusDays(SecurityConstant.TOKEN_EXPIRATION_DAYS),
+            currentTime,
+            currentTime,
+            currentTime.plusDays(SecurityConstant.TOKEN_EXPIRATION_DAYS),
             account
         );
 
