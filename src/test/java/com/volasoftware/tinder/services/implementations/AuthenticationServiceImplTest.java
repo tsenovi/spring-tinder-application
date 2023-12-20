@@ -230,10 +230,10 @@ class AuthenticationServiceImplTest {
 
         when(authenticationRepository.findOneByEmail(EMAIL)).thenReturn(Optional.of(account));
         VerificationToken verificationToken = new VerificationToken();
-        when(verificationTokenService.regenerateToken(account)).thenReturn(verificationToken);
+        when(verificationTokenService.getVerificationToken(account)).thenReturn(verificationToken);
 
         //when
-        EmailDto resultDto = authenticationService.reverify(emailDto);
+        EmailDto resultDto = authenticationService.resendVerification(emailDto);
 
         //then
         assertNotNull(resultDto);
@@ -255,7 +255,7 @@ class AuthenticationServiceImplTest {
 
         //when
         Exception exception = assertThrows(EmailAlreadyVerifiedException.class,
-            () -> authenticationService.reverify(emailDto));
+            () -> authenticationService.resendVerification(emailDto));
 
         //then
         String expectedMessage = MailConstant.ALREADY_CONFIRMED;

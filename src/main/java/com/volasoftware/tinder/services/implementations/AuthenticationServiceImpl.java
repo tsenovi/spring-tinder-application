@@ -157,13 +157,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public EmailDto reverify(EmailDto emailDto) {
+    public EmailDto resendVerification(EmailDto emailDto) {
         Account account = findAccountByEmail(emailDto.getEmail());
         if (account.isVerified()) {
             throw new EmailAlreadyVerifiedException(MailConstant.ALREADY_CONFIRMED);
         }
 
-        VerificationToken verificationToken = verificationTokenService.regenerateToken(account);
+        VerificationToken verificationToken = verificationTokenService.getVerificationToken(account);
         sendVerificationMail(emailDto.getEmail(), verificationToken.getToken());
 
         return emailDto;

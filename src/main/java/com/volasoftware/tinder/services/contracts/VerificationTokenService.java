@@ -9,5 +9,5 @@ public interface VerificationTokenService {
 
     Account verifyToken(String token);
 
-    VerificationToken regenerateToken(Account account);
+    VerificationToken getVerificationToken(Account account);
 }

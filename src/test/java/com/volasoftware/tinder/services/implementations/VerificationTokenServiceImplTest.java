@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -131,7 +130,7 @@ class VerificationTokenServiceImplTest {
         when(repository.save(any())).thenReturn(newToken);
 
         //when
-        VerificationToken resultToken = service.regenerateToken(account);
+        VerificationToken resultToken = service.getVerificationToken(account);
 
         //then
         assertNotNull(resultToken);
@@ -155,7 +154,7 @@ class VerificationTokenServiceImplTest {
             });
 
         //when
-        VerificationToken actualToken = service.regenerateToken(account);
+        VerificationToken actualToken = service.getVerificationToken(account);
 
         //then
         assertNotNull(actualToken);

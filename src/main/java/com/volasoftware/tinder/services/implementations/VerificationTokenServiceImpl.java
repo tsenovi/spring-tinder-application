@@ -55,7 +55,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Override
-    public VerificationToken regenerateToken(Account account) {
+    public VerificationToken getVerificationToken(Account account) {
         Optional<VerificationToken> optionalVerificationToken = verificationTokenRepository
             .findByAccountId(account.getId());
 

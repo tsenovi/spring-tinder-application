@@ -27,5 +27,5 @@ public interface AuthenticationService {
 
     AccountDto recoverPassword(Principal principal);
 
-    EmailDto reverify(EmailDto emailDto);
+    EmailDto resendVerification(EmailDto emailDto);
 }

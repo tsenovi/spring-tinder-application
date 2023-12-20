@@ -69,6 +69,6 @@ public class VerificationController {
         return ResponseHandler.generateResponse(
             MailConstant.SEND_VERIFICATION_MAIL,
             HttpStatus.OK,
-            authenticationService.reverify(emailDto));
+            authenticationService.resendVerification(emailDto));
     }
 }
