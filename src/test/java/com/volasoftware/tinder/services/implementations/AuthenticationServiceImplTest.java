@@ -9,10 +9,12 @@ import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.constants.MailConstant;
 import com.volasoftware.tinder.dtos.AccountDto;
+import com.volasoftware.tinder.dtos.EmailDto;
 import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.AccountNotVerifiedException;
+import com.volasoftware.tinder.exceptions.EmailAlreadyVerifiedException;
 import com.volasoftware.tinder.exceptions.EmailIsTakenException;
 import com.volasoftware.tinder.mapper.AccountMapper;
 import com.volasoftware.tinder.models.Account;
@@ -69,6 +71,9 @@ class AuthenticationServiceImplTest {
 
     @MockBean
     private VerificationTokenRepository verificationTokenRepository;
+
+    @MockBean
+    private VerificationTokenServiceImpl verificationTokenService;
 
     @MockBean
     private AuthenticationManager authenticationManager;
@@ -210,6 +215,53 @@ class AuthenticationServiceImplTest {
         LoginResponse loginResponse = authenticationService.login(loginRequest);
 
         assertNotNull(loginResponse.getToken());
+    }
+
+    @Test
+    void testReverifyWhenAccountNotVerifiedThenSuccessfulOperation() {
+        //given
+        EmailDto emailDto = new EmailDto();
+        emailDto.setEmail(EMAIL);
+
+        Account account = new Account();
+        account.setId(1L);
+        account.setEmail(EMAIL);
+        account.setVerified(false);
+
+        when(authenticationRepository.findOneByEmail(EMAIL)).thenReturn(Optional.of(account));
+        VerificationToken verificationToken = new VerificationToken();
+        when(verificationTokenService.getVerificationToken(account)).thenReturn(verificationToken);
+
+        //when
+        EmailDto resultDto = authenticationService.resendVerification(emailDto);
+
+        //then
+        assertNotNull(resultDto);
+        assertEquals(EMAIL, resultDto.getEmail());
+    }
+
+    @Test
+    void testReverifyWhenAccountVerifiedThenExceptionThrown() {
+        //given
+        EmailDto emailDto = new EmailDto();
+        emailDto.setEmail(EMAIL);
+
+        Account account = new Account();
+        account.setId(1L);
+        account.setEmail(EMAIL);
+        account.setVerified(true);
+
+        when(authenticationRepository.findOneByEmail(EMAIL)).thenReturn(Optional.of(account));
+
+        //when
+        Exception exception = assertThrows(EmailAlreadyVerifiedException.class,
+            () -> authenticationService.resendVerification(emailDto));
+
+        //then
+        String expectedMessage = MailConstant.ALREADY_CONFIRMED;
+        String actualMessage = exception.getMessage();
+
+        assertEquals(actualMessage, expectedMessage);
     }
 
     private LoginRequest generateLoginRequest(String email, String password) {

@@ -2,6 +2,7 @@ package com.volasoftware.tinder.services.implementations;
 
 import com.volasoftware.tinder.constants.*;
 import com.volasoftware.tinder.dtos.AccountDto;
+import com.volasoftware.tinder.dtos.EmailDto;
 import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.exceptions.*;
 import com.volasoftware.tinder.models.Account;
@@ -153,6 +154,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Account savedAccount = accountRepository.save(account);
 
         return accountMapper.accountToAccountDto(savedAccount);
+    }
+
+    @Override
+    public EmailDto resendVerification(EmailDto emailDto) {
+        Account account = findAccountByEmail(emailDto.getEmail());
+        if (account.isVerified()) {
+            throw new EmailAlreadyVerifiedException(MailConstant.ALREADY_CONFIRMED);
+        }
+
+        VerificationToken verificationToken = verificationTokenService.getVerificationToken(account);
+        sendVerificationMail(emailDto.getEmail(), verificationToken.getToken());
+
+        return emailDto;
     }
 
     private void sendRecoveredPasswordMail(String receiver, String recoveredPassword) {
