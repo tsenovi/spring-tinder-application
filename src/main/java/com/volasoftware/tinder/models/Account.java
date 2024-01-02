@@ -9,9 +9,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import java.util.Collection;
 import java.util.List;
 
+import java.util.Set;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,6 +47,13 @@ public class Account extends Audit implements UserDetails {
 
     private boolean isLocked;
     private boolean isVerified;
+
+    @ManyToMany
+    @JoinTable(
+        name = "friend",
+        joinColumns = @JoinColumn(name = "account_id"),
+        inverseJoinColumns = @JoinColumn(name = "friend_id"))
+    private Set<Account> friends;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
