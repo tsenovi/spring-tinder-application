@@ -25,11 +25,15 @@ public class FriendServiceImpl implements FriendService {
         Account loggedAccount = getLoggedAccount();
         Account friendAccount = getAccountById(friendId);
 
-        if (hasFriends(loggedAccount) && friendExist(loggedAccount, friendAccount)) {
-            throw new FriendExistException(AccountConstant.ALREADY_FRIEND);
+        if (hasFriends(loggedAccount)) {
+            if (friendExist(loggedAccount, friendAccount)) {
+                throw new FriendExistException(AccountConstant.ALREADY_FRIEND);
+            }
+        } else {
+            loggedAccount.setFriends(new HashSet<>());
         }
 
-        loggedAccount.setFriends(Set.of(friendAccount));
+        loggedAccount.getFriends().add(friendAccount);
         accountRepository.save(loggedAccount);
     }
 
