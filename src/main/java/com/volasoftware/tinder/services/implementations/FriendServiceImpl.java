@@ -8,6 +8,7 @@ import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,15 +25,11 @@ public class FriendServiceImpl implements FriendService {
         Account loggedAccount = getLoggedAccount();
         Account friendAccount = getAccountById(friendId);
 
-        if (hasFriends(loggedAccount)) {
-            if (friendExist(loggedAccount, friendAccount)) {
-                throw new FriendExistException(AccountConstant.ALREADY_EXIST);
-            }
+        if (hasFriends(loggedAccount) && friendExist(loggedAccount, friendAccount)) {
+            throw new FriendExistException(AccountConstant.ALREADY_FRIEND);
         }
 
-        HashSet<Account> friends = new HashSet<>();
-        friends.add(friendAccount);
-        loggedAccount.setFriends(friends);
+        loggedAccount.setFriends(Set.of(friendAccount));
         accountRepository.save(loggedAccount);
     }
 
@@ -41,11 +38,11 @@ public class FriendServiceImpl implements FriendService {
         Account loggedAccount = getLoggedAccount();
         Account friendAccount = getAccountById(friendId);
 
-        if (!hasFriends(loggedAccount)) {
-            throw new FriendNotFoundException(AccountConstant.NOT_FOUND);
-        } else if (friendExist(loggedAccount, friendAccount)) {
+        if (hasFriends(loggedAccount) && friendExist(loggedAccount, friendAccount)) {
             loggedAccount.getFriends().remove(friendAccount);
             accountRepository.save(loggedAccount);
+        } else {
+            throw new FriendNotFoundException(AccountConstant.NOT_FOUND);
         }
     }
 

@@ -26,8 +26,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 class FriendServiceImplTest {
 
     public static final String USERNAME = "loggedUser";
+
     public static final long FRIEND_ID = 2L;
+
     public static final long LOGGED_ACCOUNT_ID = 1L;
+
     @MockBean
     private AccountRepository accountRepository;
 
