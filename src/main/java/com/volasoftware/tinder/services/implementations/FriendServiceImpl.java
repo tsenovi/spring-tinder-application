@@ -42,7 +42,7 @@ public class FriendServiceImpl implements FriendService {
             loggedAccount.getFriends().remove(friendAccount);
             accountRepository.save(loggedAccount);
         } else {
-            throw new FriendNotFoundException(AccountConstant.NOT_FOUND);
+            throw new FriendNotFoundException(AccountConstant.FRIEND_NOT_FOUND);
         }
     }
 
