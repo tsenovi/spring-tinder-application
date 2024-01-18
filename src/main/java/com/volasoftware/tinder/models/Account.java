@@ -1,7 +1,9 @@
 package com.volasoftware.tinder.models;
 
+import com.volasoftware.tinder.constants.AccountType;
 import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.constants.Role;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +15,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,8 +40,11 @@ public class Account extends Audit implements UserDetails {
     private Long id;
 
     private String firstName;
+
     private String lastName;
+
     private String email;
+
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -47,7 +54,17 @@ public class Account extends Audit implements UserDetails {
     private Role role;
 
     private boolean isLocked;
+
     private boolean isVerified;
+
+    private int age;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn(name = "location_id")
+    private Location location;
+
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
 
     @ManyToMany
     @JoinTable(
