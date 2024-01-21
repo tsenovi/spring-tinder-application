@@ -26,8 +26,7 @@ public class Location {
     private Long id;
 
     @OneToOne
-    @MapsId
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
     private Double latitude;

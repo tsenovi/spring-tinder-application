@@ -59,8 +59,8 @@ public class Account extends Audit implements UserDetails {
 
     private int age;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn(name = "location_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
     private Location location;
 
     @Enumerated(EnumType.STRING)
