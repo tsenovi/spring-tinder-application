@@ -10,6 +10,7 @@ import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,9 @@ class FriendServiceImplTest {
     private AccountRepository accountRepository;
 
     @MockBean
+    private Random random;
+
+    @MockBean
     private Authentication authentication;
 
     @InjectMocks
@@ -44,7 +48,7 @@ class FriendServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        friendService = new FriendServiceImpl(accountRepository);
+        friendService = new FriendServiceImpl(accountRepository, random);
     }
 
     @Test

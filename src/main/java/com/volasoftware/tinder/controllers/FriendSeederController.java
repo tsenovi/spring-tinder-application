@@ -11,6 +11,8 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,17 +43,20 @@ public class FriendSeederController {
         @Valid
         @Min(0L)
         @RequestParam(name = "id")
-        Optional<Long> accountId) {
+        Optional<Long> accountId,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
         if (accountId.isEmpty()) {
             return ResponseHandler.generateResponse(
                 AccountConstant.LINKED_ACCOUNTS_WITH_BOTS,
                 HttpStatus.OK,
-                friendService.linkAllAccountsWithBots());
+                friendService.linkAllAccountsWithBots(pageable));
         }
 
         return ResponseHandler.generateResponse(
             AccountConstant.LINKED_ACCOUNT_WITH_BOTS,
             HttpStatus.OK,
-            friendService.linkRequestedAccountWithBots(accountId));
+            friendService.linkRequestedAccountWithBots(accountId, pageable));
     }
 }
