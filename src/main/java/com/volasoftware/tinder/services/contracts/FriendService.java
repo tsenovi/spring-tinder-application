@@ -10,4 +10,6 @@ public interface FriendService {
     void removeFriend(Long friendId);
 
     String linkAllAccountsWithBots(Pageable pageable);
+
+    String linkRequestedAccountWithBots(Long accountId, Pageable pageable);
 }

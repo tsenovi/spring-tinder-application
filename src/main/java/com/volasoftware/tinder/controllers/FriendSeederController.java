@@ -57,6 +57,6 @@ public class FriendSeederController {
         return ResponseHandler.generateResponse(
             AccountConstant.LINKED_ACCOUNT_WITH_BOTS,
             HttpStatus.OK,
-            friendService.linkRequestedAccountWithBots(accountId, pageable));
+            friendService.linkRequestedAccountWithBots(accountId.get(), pageable));
     }
 }

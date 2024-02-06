@@ -16,7 +16,6 @@ import java.util.Random;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,6 +59,28 @@ public class FriendServiceImpl implements FriendService {
         }
     }
 
+    @Override
+    public String linkRequestedAccountWithBots(Long accountId, Pageable pageable) {
+        Account realAccount = getAccountById(accountId);
+
+        Set<Account> botSet = getAccountsByAccountType(AccountType.BOT, pageable);
+
+        int initialFriendsCount = getFriendsCount(realAccount);
+        if (!hasFriends(realAccount)) {
+            realAccount.setFriends(new HashSet<>());
+        }
+
+        addBotFriendsToExistingSet(realAccount, botSet);
+
+        int finalFriendsCount = getFriendsCount(realAccount);
+        if (finalFriendsCount > initialFriendsCount) {
+            return OperationConstant.SUCCESSFUL;
+        } else {
+            throw new FriendExistException(OperationConstant.FAILED);
+        }
+    }
+
+    @Override
     public String linkAllAccountsWithBots(Pageable pageable) {
         Set<Account> realAccounts = getAccountsByAccountType(AccountType.REAL, pageable);
         Set<Account> botSet = getAccountsByAccountType(AccountType.BOT, pageable);
@@ -79,6 +100,10 @@ public class FriendServiceImpl implements FriendService {
         } else {
             throw new FriendExistException(OperationConstant.FAILED);
         }
+    }
+
+    private int getFriendsCount(Account account) {
+        return account.getFriends() == null ? 0 : account.getFriends().size();
     }
 
     private int getFriendsCount(Set<Account> realAccounts) {
