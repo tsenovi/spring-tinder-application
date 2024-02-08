@@ -17,7 +17,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class CustomErrorHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({AccountNotFoundException.class})
+    @ExceptionHandler({
+        AccountNotFoundException.class,
+        FriendNotFoundException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<?> handleNotFoundException(RuntimeException exception) {
         return ResponseHandler.generateResponse(exception.getMessage(), HttpStatus.NOT_FOUND, null);
@@ -37,7 +40,9 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({
         EmailIsNotValidException.class,
-        EmailAlreadyVerifiedException.class
+        EmailAlreadyVerifiedException.class,
+        NoRealAccountsException.class,
+        FriendExistException.class
     })
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     public ResponseEntity<?> handleNotAcceptableException(RuntimeException exception) {
