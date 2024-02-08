@@ -46,6 +46,7 @@ public class FriendSeederController {
         Optional<Long> accountId,
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size) {
+        
         Pageable pageable = PageRequest.of(page, size);
         if (accountId.isEmpty()) {
             return ResponseHandler.generateResponse(
