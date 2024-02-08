@@ -53,7 +53,7 @@ public class BotInitializer {
             PageRequest.of(0, 10)
         );
 
-        if (botAccounts.isEmpty()) {
+        if (botAccounts == null || botAccounts.isEmpty()) {
             for (int i = 0; i < MAX_BOTS_COUNT; i++) {
                 generateBotAccount();
             }
