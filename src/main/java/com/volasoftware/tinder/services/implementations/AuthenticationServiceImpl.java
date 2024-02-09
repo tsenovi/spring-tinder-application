@@ -77,6 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         Account account = accountMapper.registerRequestToAccount(registerRequest);
+        account.setAccountType(AccountType.REAL);
         account.setRole(Role.USER);
         account.setLocked(false);
         account.setVerified(false);

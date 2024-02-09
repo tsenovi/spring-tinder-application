@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.repositories;
 
+import com.volasoftware.tinder.constants.AccountType;
 import com.volasoftware.tinder.models.Account;
 
 import java.util.Optional;
@@ -17,4 +18,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @NonNull
     Page<Account> findAll(@NonNull Pageable pageable);
+
+    Page<Account> findByAccountType(@NonNull AccountType accountType, @NonNull Pageable pageable);
 }
