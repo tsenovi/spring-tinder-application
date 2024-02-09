@@ -78,9 +78,9 @@ public class FriendServiceImpl implements FriendService {
         int finalFriendsCount = getFriendsCount(savedAccount);
         if (finalFriendsCount > initialFriendsCount) {
             return OperationConstant.SUCCESSFUL;
-        } else {
-            throw new FriendExistException(OperationConstant.FAILED);
         }
+
+        throw new FriendExistException(OperationConstant.FAILED);
     }
 
     @Override
@@ -105,9 +105,9 @@ public class FriendServiceImpl implements FriendService {
 
         if (finalFriendsCount > initialFriendsCount) {
             return OperationConstant.SUCCESSFUL;
-        } else {
-            throw new FriendExistException(OperationConstant.FAILED);
         }
+
+        throw new FriendExistException(OperationConstant.FAILED);
     }
 
     private int getFriendsCount(Account account) {
@@ -117,7 +117,7 @@ public class FriendServiceImpl implements FriendService {
     private int getFriendsCount(Set<Account> realAccounts) {
         return realAccounts
             .stream()
-            .mapToInt(account -> account.getFriends() == null ? 0 : account.getFriends().size())
+            .mapToInt(this::getFriendsCount)
             .sum();
     }
 
