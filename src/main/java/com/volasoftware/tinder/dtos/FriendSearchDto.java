@@ -1,6 +1,10 @@
 package com.volasoftware.tinder.dtos;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +19,15 @@ import lombok.Setter;
 @ApiModel(value = "Friend search model", description = "Model for searching friends by location")
 public class FriendSearchDto {
 
-    private Double longitude;
-
+    @ApiModelProperty(value = "Latitude", required = true)
+    @NotNull
+    @DecimalMin("-90.0")
+    @DecimalMax("90.0")
     private Double latitude;
+
+    @ApiModelProperty(value = "Longitude", required = true)
+    @NotNull
+    @DecimalMin("-180.0")
+    @DecimalMax("180.0")
+    private Double longitude;
 }

@@ -1,0 +1,45 @@
+package com.volasoftware.tinder.controllers;
+
+import com.volasoftware.tinder.constants.AccountConstant;
+import com.volasoftware.tinder.dtos.FriendDto;
+import com.volasoftware.tinder.dtos.FriendSearchDto;
+import com.volasoftware.tinder.responses.ResponseHandler;
+import com.volasoftware.tinder.services.contracts.FriendService;
+import java.util.List;
+import io.swagger.annotations.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/friends")
+@Api(value = "Friends controller")
+public class FriendController {
+
+    private final FriendService friendService;
+
+    @GetMapping
+    @ApiOperation(value = "Get sorted friends by location",
+        response = FriendDto.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Success operation",
+            response = FriendDto.class, responseContainer = "List"),
+        @ApiResponse(code = 401, message = "Unauthorized operation"),
+        @ApiResponse(code = 403, message = "Forbidden operation"),
+        @ApiResponse(code = 500, message = "Failed operation")
+    })
+    @ApiImplicitParam(name = "friendSearchDto", value = "Friend search parameters",
+        required = true, dataType = "FriendSearchDto")
+    public ResponseEntity<?> getFriends(@RequestBody FriendSearchDto friendSearchDto) {
+
+        return ResponseHandler.generateResponse(
+            AccountConstant.SORTED_ACCOUNTS_BY_LOCATION,
+            HttpStatus.OK,
+            friendService.sortFriendsByLocation(friendSearchDto));
+    }
+}

@@ -16,4 +16,5 @@ public class AccountConstant {
     public static final String LINKED_ACCOUNTS_WITH_BOTS = "Accounts were linked with Bots!";
     public static final String LINKED_ACCOUNT_WITH_BOTS = "Account was linked with Bots!";
     public static final String ACCOUNTS_NOT_EXIST = "No real accounts found!";
+    public static final String SORTED_ACCOUNTS_BY_LOCATION = "Sorted friends list by location!";
 }
