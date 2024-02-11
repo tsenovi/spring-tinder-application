@@ -7,6 +7,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,8 @@ public class FriendSeederController {
         })
     @GetMapping("")
     public ResponseEntity<?> seedFriends(
+        @Valid
+        @Min(0L)
         @RequestParam(required = false) Long accountId,
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size) {
