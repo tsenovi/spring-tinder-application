@@ -14,6 +14,7 @@ import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,8 +47,26 @@ public class BotInitializer {
 
     private final NameGenerator nameGenerator;
 
+    private final JdbcTemplate jdbcTemplate;
+
     @PostConstruct
     void initialize() {
+        setupBots();
+    }
+
+    private void buildInitialAccounts() {
+        String insertAccount1 = "insert into account(first_name, last_name, email, password, gender, account_type, created_at, updated_at, is_verified) values (?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+        String encryptedPassword1 = passwordEncoder.encode("IVNtsn963");
+        jdbcTemplate.update(insertAccount1, "Ivan", "Tsenov", "ivan.t.tsenov@gmail.com",
+            encryptedPassword1, "MALE", "REAL", true);
+
+        String insertAccount2 = "insert into account(first_name, last_name, email, password, gender, account_type, created_at, updated_at, is_verified) values (?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+        String encryptedPassword2 = passwordEncoder.encode("TNSLVtsn963");
+        jdbcTemplate.update(insertAccount2, "Toni", "Tsenova", "toni.k.tsenova@gmail.com",
+            encryptedPassword2, "FEMALE", "REAL", true);
+    }
+
+    private void setupBots() {
         Page<Account> botAccounts = accountRepository.findByAccountType(
             AccountType.BOT,
             PageRequest.of(0, 10)
@@ -57,6 +76,7 @@ public class BotInitializer {
             for (int i = 0; i < MAX_BOTS_COUNT; i++) {
                 generateBotAccount();
             }
+            buildInitialAccounts();
         }
     }
 

@@ -3,22 +3,27 @@ package com.volasoftware.tinder.services.implementations;
 import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.constants.AccountType;
 import com.volasoftware.tinder.constants.OperationConstant;
+import com.volasoftware.tinder.dtos.FriendDto;
+import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.FriendExistException;
 import com.volasoftware.tinder.exceptions.FriendNotFoundException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
+import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
+import com.volasoftware.tinder.models.Location;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +36,8 @@ public class FriendServiceImpl implements FriendService {
     private final AccountRepository accountRepository;
 
     private final Random random;
+
+    private final FriendMapper friendMapper;
 
     @Override
     public void addFriend(Long friendId) {
@@ -108,6 +115,58 @@ public class FriendServiceImpl implements FriendService {
         }
 
         throw new FriendExistException(OperationConstant.FAILED);
+    }
+
+    @Override
+    public List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto) {
+        Double accountLatitude = friendSearchDto.getLatitude();
+        Double accountLongitude = friendSearchDto.getLongitude();
+
+        Account loggedAccount = getLoggedAccount();
+        Set<Account> friends = loggedAccount.getFriends();
+
+        Comparator<Account> comparator = Comparator.comparingDouble(
+            friend -> {
+                if (friend.getLocation() == null) {
+                    return Double.MAX_VALUE;
+                }
+
+                Location friendLocation = friend.getLocation();
+                Double friendLongitude = friendLocation.getLongitude();
+                Double friendLatitude = friendLocation.getLatitude();
+
+                return calculateDistance(
+                    accountLatitude, accountLongitude, friendLatitude, friendLongitude);
+            }
+        );
+
+        List<Account> sortedFriends = new ArrayList<>(friends);
+        sortedFriends.sort(comparator);
+
+        return friendMapper.accountListToFriendDtoList(new ArrayList<>(friends));
+    }
+
+    //Haversine formula used to calculate the distance between two points on Earth's surface
+    private double calculateDistance(
+        Double accountLongitude, Double accountLatitude,
+        Double friendLongitude, Double friendLatitude) {
+
+        // Convert latitude and longitude values from degrees to radians
+        double latitudeDeltaRadians = Math.toRadians(friendLatitude - accountLatitude);
+        double longitudeDeltaRadians = Math.toRadians(friendLongitude - accountLongitude);
+
+        // Calculate the 'a' value using the 'sin' and 'cos' values from the deltas
+        double earthRadius = 6371000;
+        double earthRadiusSquared = earthRadius * earthRadius;
+        double a = Math.sin(latitudeDeltaRadians / 2) * Math.sin(latitudeDeltaRadians / 2) +
+            Math.cos(Math.toRadians(accountLatitude)) * Math.cos(Math.toRadians(friendLatitude)) *
+                Math.sin(longitudeDeltaRadians / 2) * Math.sin(longitudeDeltaRadians / 2);
+
+        // Calculate the 'c' value using the 'a' value and the Earth's radius
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        // Return the final distance by multiplying 'c' by the Earth's radius
+        return earthRadius * c;
     }
 
     private int getFriendsCount(Account account) {

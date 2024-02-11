@@ -12,6 +12,7 @@ import com.volasoftware.tinder.constants.OperationConstant;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.FriendExistException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
+import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.utils.BotInitializer;
@@ -64,6 +65,9 @@ class FriendServiceImplTest {
     @MockBean
     private BotInitializer botInitializer;
 
+    @MockBean
+    private FriendMapper friendMapper;
+
     @InjectMocks
     private FriendServiceImpl friendService;
 
@@ -71,7 +75,7 @@ class FriendServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        friendService = new FriendServiceImpl(accountRepository, random);
+        friendService = new FriendServiceImpl(accountRepository, random, friendMapper);
     }
 
     @Test
