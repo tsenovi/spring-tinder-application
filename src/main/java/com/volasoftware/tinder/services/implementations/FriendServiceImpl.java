@@ -143,7 +143,7 @@ public class FriendServiceImpl implements FriendService {
         List<Account> sortedFriends = new ArrayList<>(friends);
         sortedFriends.sort(comparator);
 
-        return friendMapper.accountListToFriendDtoList(new ArrayList<>(friends));
+        return friendMapper.accountListToFriendDtoList(new ArrayList<>(sortedFriends));
     }
 
     //Haversine formula used to calculate the distance between two points on Earth's surface

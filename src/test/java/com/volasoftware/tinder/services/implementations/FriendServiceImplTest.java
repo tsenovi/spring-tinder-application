@@ -1,22 +1,32 @@
 package com.volasoftware.tinder.services.implementations;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.volasoftware.tinder.constants.AccountType;
+import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.constants.OperationConstant;
+import com.volasoftware.tinder.dtos.FriendDto;
+import com.volasoftware.tinder.dtos.FriendSearchDto;
+import com.volasoftware.tinder.dtos.LocationDto;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.FriendExistException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
 import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
+import com.volasoftware.tinder.models.Location;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.utils.BotInitializer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -71,11 +82,17 @@ class FriendServiceImplTest {
     @InjectMocks
     private FriendServiceImpl friendService;
 
+    private Account loggedAccount;
+    private Account friend1;
+    private Account friend2;
+    private Account friend3;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         friendService = new FriendServiceImpl(accountRepository, random, friendMapper);
+        createAccountWithFriends();
     }
 
     @Test
@@ -262,10 +279,88 @@ class FriendServiceImplTest {
         assertEquals(OperationConstant.SUCCESSFUL, result);
     }
 
+
+    @Test
+    public void testSortFriendsByLocation() {
+        //given
+        FriendSearchDto friendSearchDto = new FriendSearchDto();
+        friendSearchDto.setLatitude(0.0);
+        friendSearchDto.setLongitude(0.0);
+
+        List<FriendDto> expectedFriends = Arrays.asList(
+            FriendDto.builder().firstName("John").lastName("Doe")
+                .gender(Gender.MALE).age(25)
+                .locationDto(LocationDto.builder().latitude(10.0).longitude(10.0).build()).build(),
+            FriendDto.builder().firstName("Jane").lastName("Doe")
+                .gender(Gender.FEMALE).age(22)
+                .locationDto(LocationDto.builder().latitude(20.0).longitude(20.0).build()).build(),
+            FriendDto.builder().firstName("Alice").lastName("Doe")
+                .gender(Gender.OTHER).age(30)
+                .locationDto(LocationDto.builder().latitude(30.0).longitude(30.0).build()).build()
+        );
+
+        //when
+        List<Account> friendsList = Arrays.asList(friend1, friend2, friend3);
+        ArrayList<Account> friends = new ArrayList<>(friendsList);
+        when(accountRepository.findOneByEmail(any())).thenReturn(
+            Optional.ofNullable(loggedAccount));
+        when(friendMapper.accountListToFriendDtoList(friends)).thenReturn(expectedFriends);
+
+        List<FriendDto> expectedFriendDtos = friendMapper.accountListToFriendDtoList(friends);
+        List<FriendDto> sortedFriendDtos = friendService.sortFriendsByLocation(friendSearchDto);
+
+        //then
+        assertEquals(expectedFriendDtos, sortedFriendDtos);
+    }
+
     private Account createAccount(Long id, AccountType type) {
         Account account = new Account();
         account.setId(id);
         account.setAccountType(type);
         return account;
+    }
+
+    private void createAccountWithFriends() {
+        loggedAccount = new Account();
+        loggedAccount.setId(1L);
+        loggedAccount.setEmail("user1");
+
+        friend1 = new Account();
+        friend1.setId(2L);
+        friend1.setEmail("user2");
+        friend1.setFirstName("John");
+        friend1.setLastName("Doe");
+        friend1.setGender(Gender.MALE);
+        friend1.setAge(25);
+        Location location1 = new Location();
+        location1.setLatitude(10.0);
+        location1.setLongitude(10.0);
+        friend1.setLocation(location1);
+
+        friend2 = new Account();
+        friend2.setId(3L);
+        friend2.setEmail("user3");
+        friend2.setFirstName("Jane");
+        friend2.setLastName("Doe");
+        friend2.setGender(Gender.FEMALE);
+        friend2.setAge(22);
+        Location location2 = new Location();
+        location2.setLatitude(20.0);
+        location2.setLongitude(20.0);
+        friend2.setLocation(location2);
+
+        friend3 = new Account();
+        friend3.setId(4L);
+        friend3.setEmail("user4");
+        friend3.setFirstName("Alice");
+        friend3.setLastName("Doe");
+        friend3.setGender(Gender.OTHER);
+        friend3.setAge(30);
+        Location location3 = new Location();
+        location3.setLatitude(30.0);
+        location3.setLongitude(30.0);
+        friend3.setLocation(location3);
+
+        loggedAccount.setFriends(Set.of(friend1, friend2, friend3));
     }
 }
