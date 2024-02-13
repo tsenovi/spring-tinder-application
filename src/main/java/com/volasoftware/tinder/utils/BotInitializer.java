@@ -55,22 +55,31 @@ public class BotInitializer {
     }
 
     private void buildInitialAccounts() {
-        String insertAccount1 = "insert into account(first_name, last_name, email, password, gender, account_type, created_at, updated_at, is_verified) values (?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
-        String encryptedPassword1 = passwordEncoder.encode("IVNtsn963");
-        jdbcTemplate.update(insertAccount1, "Ivan", "Tsenov", "ivan.t.tsenov@gmail.com",
-            encryptedPassword1, "MALE", "REAL", true);
+        Account realAccount1 = createAccount("Ivan", "Tsenov", "ivan.t.tsenov@gmail.com",
+            "IVNtsn963", Gender.MALE, Role.USER, false, true, 18, null,
+            AccountType.REAL);
+        Account realAccount2 = createAccount("Toni", "Tsenova", "toni.k.tsenova@gmail.com",
+            "TNSLVtsn963", Gender.FEMALE, Role.USER, false, true, 18, null,
+            AccountType.REAL);
 
-        String insertAccount2 = "insert into account(first_name, last_name, email, password, gender, account_type, created_at, updated_at, is_verified) values (?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
-        String encryptedPassword2 = passwordEncoder.encode("TNSLVtsn963");
-        jdbcTemplate.update(insertAccount2, "Toni", "Tsenova", "toni.k.tsenova@gmail.com",
-            encryptedPassword2, "FEMALE", "REAL", true);
+        accountRepository.save(realAccount1);
+        accountRepository.save(realAccount2);
+    }
+
+    public Account createAccount(String firstName, String lastName, String email, String password,
+        Gender gender, Role role, boolean isLocked, boolean isVerified, int age, Location location,
+        AccountType accountType) {
+
+        return Account.builder().firstName(firstName).lastName(lastName).email(email)
+            .password(passwordEncoder.encode(password)).gender(gender)
+            .role(role).isLocked(isLocked).isVerified(isVerified).age(age)
+            .location(location)
+            .accountType(accountType).build();
     }
 
     private void setupBots() {
-        Page<Account> botAccounts = accountRepository.findByAccountType(
-            AccountType.BOT,
-            PageRequest.of(0, 10)
-        );
+        Page<Account> botAccounts = accountRepository.findByAccountType(AccountType.BOT,
+            PageRequest.of(0, 10));
 
         if (botAccounts == null || botAccounts.isEmpty()) {
             for (int i = 0; i < MAX_BOTS_COUNT; i++) {

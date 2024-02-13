@@ -32,7 +32,7 @@ public class FriendSeederControllerTest {
     public void testSeedFriendsWhenValidIdIsProvidedThenReturnSuccess() throws Exception {
         //when
         Long accountId = 1L;
-        when(friendService.linkRequestedAccountWithBots(accountId, Pageable.unpaged()))
+        when(friendService.linkFriends(accountId, Pageable.unpaged()))
             .thenReturn(OperationConstant.SUCCESSFUL);
 
         //then
@@ -45,7 +45,7 @@ public class FriendSeederControllerTest {
     @Test
     public void testSeedFriendsWhenNoIdProvidedThenReturnSuccess() throws Exception {
         //when
-        when(friendService.linkAllAccountsWithBots(Pageable.unpaged()))
+        when(friendService.linkFriends(null, Pageable.unpaged()))
             .thenReturn(OperationConstant.SUCCESSFUL);
 
         //then

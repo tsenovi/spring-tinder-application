@@ -45,16 +45,10 @@ public class FriendSeederController {
         @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        if (accountId != null) {
-            return ResponseHandler.generateResponse(
-                AccountConstant.LINKED_ACCOUNT_WITH_BOTS,
-                HttpStatus.OK,
-                friendService.linkRequestedAccountWithBots(accountId, pageable));
-        }
 
         return ResponseHandler.generateResponse(
-            AccountConstant.LINKED_ACCOUNTS_WITH_BOTS,
+            AccountConstant.LINKED_FRIENDS,
             HttpStatus.OK,
-            friendService.linkAllAccountsWithBots(pageable));
+            friendService.linkFriends(accountId, pageable));
     }
 }

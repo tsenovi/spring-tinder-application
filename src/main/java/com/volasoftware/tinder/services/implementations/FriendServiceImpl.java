@@ -69,7 +69,45 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public String linkRequestedAccountWithBots(Long accountId, Pageable pageable) {
+    public List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto) {
+        Double accountLatitude = friendSearchDto.getLatitude();
+        Double accountLongitude = friendSearchDto.getLongitude();
+
+        Account loggedAccount = getLoggedAccount();
+        Set<Account> friends = loggedAccount.getFriends();
+
+        Comparator<Account> comparator = Comparator.comparingDouble(
+            friend -> {
+                if (friend.getLocation() == null) {
+                    return Double.MAX_VALUE;
+                }
+
+                Location friendLocation = friend.getLocation();
+                Double friendLongitude = friendLocation.getLongitude();
+                Double friendLatitude = friendLocation.getLatitude();
+
+                return calculateDistance(
+                    accountLatitude, accountLongitude, friendLatitude, friendLongitude);
+            }
+        );
+
+        ArrayList<Account> sortedFriends = new ArrayList<>(friends);
+        sortedFriends.sort(comparator);
+
+        return friendMapper.accountListToFriendDtoList(sortedFriends);
+    }
+
+    @Override
+    public String linkFriends(Long accountId, Pageable pageable) {
+        if (accountId != null) {
+            return linkRequestedAccountWithBots(accountId, pageable);
+        }
+
+        return linkAllAccountsWithBots(pageable);
+    }
+
+
+    private String linkRequestedAccountWithBots(Long accountId, Pageable pageable) {
         Account realAccount = getAccountById(accountId);
 
         Set<Account> botSet = getAccountsByAccountType(AccountType.BOT, pageable);
@@ -89,8 +127,8 @@ public class FriendServiceImpl implements FriendService {
         throw new FriendExistException(OperationConstant.FAILED);
     }
 
-    @Override
-    public String linkAllAccountsWithBots(Pageable pageable) {
+
+    private String linkAllAccountsWithBots(Pageable pageable) {
         Set<Account> realAccounts = getAccountsByAccountType(AccountType.REAL, pageable);
         if (realAccounts.isEmpty()) {
             throw new NoRealAccountsException(AccountConstant.ACCOUNTS_NOT_EXIST);
@@ -114,35 +152,6 @@ public class FriendServiceImpl implements FriendService {
         }
 
         throw new FriendExistException(OperationConstant.FAILED);
-    }
-
-    @Override
-    public List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto) {
-        Double accountLatitude = friendSearchDto.getLatitude();
-        Double accountLongitude = friendSearchDto.getLongitude();
-
-        Account loggedAccount = getLoggedAccount();
-        Set<Account> friends = loggedAccount.getFriends();
-
-        Comparator<Account> comparator = Comparator.comparingDouble(
-            friend -> {
-                if (friend.getLocation() == null) {
-                    return Double.MAX_VALUE;
-                }
-
-                Location friendLocation = friend.getLocation();
-                Double friendLongitude = friendLocation.getLongitude();
-                Double friendLatitude = friendLocation.getLatitude();
-
-                return calculateDistance(
-                    accountLatitude, accountLongitude, friendLatitude, friendLongitude);
-            }
-        );
-
-        List<Account> sortedFriends = new ArrayList<>(friends);
-        sortedFriends.sort(comparator);
-
-        return friendMapper.accountListToFriendDtoList(new ArrayList<>(sortedFriends));
     }
 
     //Haversine formula used to calculate the distance between two points on Earth's surface

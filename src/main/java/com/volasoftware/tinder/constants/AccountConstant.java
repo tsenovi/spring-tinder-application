@@ -13,8 +13,7 @@ public class AccountConstant {
     public static final String NOT_OWNER = "Account is not owner!";
     public static final String ALREADY_FRIEND = "Friend already exist!";
     public static final String FRIEND_NOT_FOUND = "Friend not exist!";
-    public static final String LINKED_ACCOUNTS_WITH_BOTS = "Accounts were linked with Bots!";
-    public static final String LINKED_ACCOUNT_WITH_BOTS = "Account was linked with Bots!";
     public static final String ACCOUNTS_NOT_EXIST = "No real accounts found!";
     public static final String SORTED_ACCOUNTS_BY_LOCATION = "Sorted friends list by location!";
+    public static final String LINKED_FRIENDS = "Linked with Friends!";
 }
