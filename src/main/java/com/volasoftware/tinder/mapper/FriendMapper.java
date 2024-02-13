@@ -15,5 +15,5 @@ public interface FriendMapper {
     @Mapping(source = "location", target = "locationDto")
     FriendDto accountToFriendDto(Account account);
 
-    List<FriendDto> accountListToFriendDtoList(ArrayList<Account> accounts);
+    List<FriendDto> accountListToFriendDtoList(List<Account> accounts);
 }

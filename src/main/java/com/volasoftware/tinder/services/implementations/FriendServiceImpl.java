@@ -11,11 +11,9 @@ import com.volasoftware.tinder.exceptions.FriendNotFoundException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
 import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
-import com.volasoftware.tinder.models.Location;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -72,27 +70,10 @@ public class FriendServiceImpl implements FriendService {
     public List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto) {
         Double accountLatitude = friendSearchDto.getLatitude();
         Double accountLongitude = friendSearchDto.getLongitude();
-
         Account loggedAccount = getLoggedAccount();
-        Set<Account> friends = loggedAccount.getFriends();
 
-        Comparator<Account> comparator = Comparator.comparingDouble(
-            friend -> {
-                if (friend.getLocation() == null) {
-                    return Double.MAX_VALUE;
-                }
-
-                Location friendLocation = friend.getLocation();
-                Double friendLongitude = friendLocation.getLongitude();
-                Double friendLatitude = friendLocation.getLatitude();
-
-                return calculateDistance(
-                    accountLatitude, accountLongitude, friendLatitude, friendLongitude);
-            }
-        );
-
-        ArrayList<Account> sortedFriends = new ArrayList<>(friends);
-        sortedFriends.sort(comparator);
+        List<Account> sortedFriends = accountRepository.findFriendsByLocation(
+            loggedAccount.getId(), accountLatitude, accountLongitude);
 
         return friendMapper.accountListToFriendDtoList(sortedFriends);
     }
@@ -152,29 +133,6 @@ public class FriendServiceImpl implements FriendService {
         }
 
         throw new FriendExistException(OperationConstant.FAILED);
-    }
-
-    //Haversine formula used to calculate the distance between two points on Earth's surface
-    private double calculateDistance(
-        Double accountLongitude, Double accountLatitude,
-        Double friendLongitude, Double friendLatitude) {
-
-        // Convert latitude and longitude values from degrees to radians
-        double latitudeDeltaRadians = Math.toRadians(friendLatitude - accountLatitude);
-        double longitudeDeltaRadians = Math.toRadians(friendLongitude - accountLongitude);
-
-        // Calculate the 'a' value using the 'sin' and 'cos' values from the deltas
-        double earthRadius = 6371000;
-        double earthRadiusSquared = earthRadius * earthRadius;
-        double a = Math.sin(latitudeDeltaRadians / 2) * Math.sin(latitudeDeltaRadians / 2) +
-            Math.cos(Math.toRadians(accountLatitude)) * Math.cos(Math.toRadians(friendLatitude)) *
-                Math.sin(longitudeDeltaRadians / 2) * Math.sin(longitudeDeltaRadians / 2);
-
-        // Calculate the 'c' value using the 'a' value and the Earth's radius
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        // Return the final distance by multiplying 'c' by the Earth's radius
-        return earthRadius * c;
     }
 
     private int getFriendsCount(Account account) {
