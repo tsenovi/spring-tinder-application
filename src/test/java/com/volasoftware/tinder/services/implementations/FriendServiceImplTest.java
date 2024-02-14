@@ -1,22 +1,30 @@
 package com.volasoftware.tinder.services.implementations;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.volasoftware.tinder.constants.AccountType;
+import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.constants.OperationConstant;
+import com.volasoftware.tinder.dtos.FriendDto;
+import com.volasoftware.tinder.dtos.FriendSearchDto;
+import com.volasoftware.tinder.dtos.LocationDto;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.FriendExistException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
+import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
+import com.volasoftware.tinder.models.Location;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.utils.BotInitializer;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -31,9 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -64,14 +70,23 @@ class FriendServiceImplTest {
     @MockBean
     private BotInitializer botInitializer;
 
+    @MockBean
+    private FriendMapper friendMapper;
+
     @InjectMocks
     private FriendServiceImpl friendService;
+
+    private Account loggedAccount;
+    private Account friend1;
+    private Account friend2;
+    private Account friend3;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        friendService = new FriendServiceImpl(accountRepository, random);
+        friendService = new FriendServiceImpl(accountRepository, random, friendMapper);
+        createAccountWithFriends();
     }
 
     @Test
@@ -156,15 +171,15 @@ class FriendServiceImplTest {
     @Test
     public void testLinkRequestedAccountWithBotsWhenAccountHasNoFriendsThenSuccessOperation() {
         //given
-        Account realAccount = createAccount(1L, AccountType.REAL);
-        Account botAccount1 = createAccount(2L, AccountType.BOT);
-        Account botAccount2 = createAccount(3L, AccountType.BOT);
+        Account realAccount = createAccountByType(1L, AccountType.REAL);
+        Account botAccount1 = createAccountByType(2L, AccountType.BOT);
+        Account botAccount2 = createAccountByType(3L, AccountType.BOT);
 
         Set<Account> botSet = new HashSet<>();
         botSet.add(botAccount1);
         botSet.add(botAccount2);
 
-        Account savedAccount = createAccount(1L, AccountType.REAL);
+        Account savedAccount = createAccountByType(1L, AccountType.REAL);
         savedAccount.setFriends(botSet);
         Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
@@ -175,7 +190,7 @@ class FriendServiceImplTest {
         when(accountRepository.save(realAccount)).thenReturn(savedAccount);
 
         // Act
-        String result = friendService.linkRequestedAccountWithBots(realAccount.getId(), pageable);
+        String result = friendService.linkFriends(realAccount.getId(), pageable);
 
         //then
         assertEquals(OperationConstant.SUCCESSFUL, result);
@@ -186,9 +201,9 @@ class FriendServiceImplTest {
     @Test
     public void testLinkRequestedAccountWhenBotsAreAlreadyFriendsThenExceptionIsThrown() {
         //given
-        Account realAccount = createAccount(1L, AccountType.REAL);
-        Account botAccount1 = createAccount(2L, AccountType.BOT);
-        Account botAccount2 = createAccount(3L, AccountType.BOT);
+        Account realAccount = createAccountByType(1L, AccountType.REAL);
+        Account botAccount1 = createAccountByType(2L, AccountType.BOT);
+        Account botAccount2 = createAccountByType(3L, AccountType.BOT);
 
         Set<Account> botSet = new HashSet<>();
         botSet.add(botAccount1);
@@ -205,7 +220,7 @@ class FriendServiceImplTest {
 
         //then
         assertThrows(FriendExistException.class,
-            () -> friendService.linkRequestedAccountWithBots(realAccount.getId(), pageable));
+            () -> friendService.linkFriends(realAccount.getId(), pageable));
     }
 
     @Test
@@ -219,16 +234,16 @@ class FriendServiceImplTest {
 
         //then
         assertThrows(NoRealAccountsException.class,
-            () -> friendService.linkAllAccountsWithBots(pageable));
+            () -> friendService.linkFriends(null, pageable));
     }
 
     @Test
     public void testLinkAllAccountsWithBotsWhenRealAccountsDoesNotHaveBotsThenSuccessOperation() {
         //given
-        Account realAccount1 = createAccount(1L, AccountType.REAL);
-        Account realAccount2 = createAccount(2L, AccountType.REAL);
-        Account botAccount1 = createAccount(3L, AccountType.BOT);
-        Account botAccount2 = createAccount(4L, AccountType.BOT);
+        Account realAccount1 = createAccountByType(1L, AccountType.REAL);
+        Account realAccount2 = createAccountByType(2L, AccountType.REAL);
+        Account botAccount1 = createAccountByType(3L, AccountType.BOT);
+        Account botAccount2 = createAccountByType(4L, AccountType.BOT);
 
         Set<Account> realAccountSet = new HashSet<>();
         realAccountSet.add(realAccount1);
@@ -238,9 +253,9 @@ class FriendServiceImplTest {
         botSet.add(botAccount1);
         botSet.add(botAccount2);
 
-        Account savedAccount1 = createAccount(1L, AccountType.REAL);
+        Account savedAccount1 = createAccountByType(1L, AccountType.REAL);
         savedAccount1.setFriends(botSet);
-        Account savedAccount2 = createAccount(2L, AccountType.REAL);
+        Account savedAccount2 = createAccountByType(2L, AccountType.REAL);
         savedAccount2.setFriends(botSet);
 
         Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
@@ -254,14 +269,80 @@ class FriendServiceImplTest {
         when(accountRepository.save(realAccount2)).thenReturn(savedAccount2);
 
         //then
-        String result = friendService.linkAllAccountsWithBots(pageable);
+        String result = friendService.linkFriends(null, pageable);
         assertEquals(OperationConstant.SUCCESSFUL, result);
     }
 
-    private Account createAccount(Long id, AccountType type) {
+
+    @Test
+    public void testSortFriendsByLocation() {
+        //given
+        FriendSearchDto friendSearchDto = new FriendSearchDto();
+        friendSearchDto.setLatitude(0.0);
+        friendSearchDto.setLongitude(0.0);
+
+        List<FriendDto> expectedFriends = Arrays.asList(
+            FriendDto.builder().firstName("John").lastName("Doe")
+                .gender(Gender.MALE).age(25)
+                .locationDto(LocationDto.builder().latitude(10.0).longitude(10.0).build()).build(),
+            FriendDto.builder().firstName("Jane").lastName("Doe")
+                .gender(Gender.FEMALE).age(22)
+                .locationDto(LocationDto.builder().latitude(20.0).longitude(20.0).build()).build(),
+            FriendDto.builder().firstName("Alice").lastName("Doe")
+                .gender(Gender.OTHER).age(30)
+                .locationDto(LocationDto.builder().latitude(30.0).longitude(30.0).build()).build()
+        );
+
+        //when
+        List<Account> friendsList = Arrays.asList(friend1, friend2, friend3);
+        ArrayList<Account> friends = new ArrayList<>(friendsList);
+        when(accountRepository.findOneByEmail(any())).thenReturn(
+            Optional.ofNullable(loggedAccount));
+        when(accountRepository.findFriendsByLocation(loggedAccount.getId(),
+            friendSearchDto.getLatitude(), friendSearchDto.getLongitude())).thenReturn(friends);
+
+        List<FriendDto> expectedFriendDtos = friendMapper.accountListToFriendDtoList(friends);
+        List<FriendDto> sortedFriendDtos = friendService.sortFriendsByLocation(friendSearchDto);
+
+        //then
+        assertEquals(expectedFriendDtos, sortedFriendDtos);
+    }
+
+    private Account createAccountByType(Long id, AccountType type) {
         Account account = new Account();
         account.setId(id);
         account.setAccountType(type);
+        return account;
+    }
+
+    private void createAccountWithFriends() {
+        loggedAccount = new Account();
+        loggedAccount.setId(1L);
+        loggedAccount.setEmail("user1");
+
+        friend1 = createAccountWithLocation(2L, "user2", "John", "Doe",
+            Gender.MALE, 21, 10.0, 10.0);
+        friend2 = createAccountWithLocation(3L, "user3", "Jane", "Doe",
+            Gender.FEMALE, 22, 20.0, 20.0);
+        friend3 = createAccountWithLocation(4L, "user4", "Alice", "Doe",
+            Gender.FEMALE, 30, 30.0, 30.0);
+
+        loggedAccount.setFriends(Set.of(friend1, friend2, friend3));
+    }
+
+    private Account createAccountWithLocation(Long id, String email, String firstName,
+        String lastName, Gender gender, int age, double latitude, double longitude) {
+        Account account = new Account();
+        account.setId(id);
+        account.setEmail(email);
+        account.setFirstName(firstName);
+        account.setLastName(lastName);
+        account.setGender(gender);
+        account.setAge(age);
+        Location location = new Location();
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        account.setLocation(location);
         return account;
     }
 }

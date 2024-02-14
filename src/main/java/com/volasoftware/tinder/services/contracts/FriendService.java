@@ -1,5 +1,8 @@
 package com.volasoftware.tinder.services.contracts;
 
+import com.volasoftware.tinder.dtos.FriendDto;
+import com.volasoftware.tinder.dtos.FriendSearchDto;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface FriendService {
@@ -8,7 +11,7 @@ public interface FriendService {
 
     void removeFriend(Long friendId);
 
-    String linkAllAccountsWithBots(Pageable pageable);
+    List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto);
 
-    String linkRequestedAccountWithBots(Long accountId, Pageable pageable);
+    String linkFriends(Long accountId, Pageable pageable);
 }

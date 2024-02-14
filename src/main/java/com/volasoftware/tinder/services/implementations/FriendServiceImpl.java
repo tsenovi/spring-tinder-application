@@ -3,14 +3,18 @@ package com.volasoftware.tinder.services.implementations;
 import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.constants.AccountType;
 import com.volasoftware.tinder.constants.OperationConstant;
+import com.volasoftware.tinder.dtos.FriendDto;
+import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.FriendExistException;
 import com.volasoftware.tinder.exceptions.FriendNotFoundException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
+import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -18,7 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +34,8 @@ public class FriendServiceImpl implements FriendService {
     private final AccountRepository accountRepository;
 
     private final Random random;
+
+    private final FriendMapper friendMapper;
 
     @Override
     public void addFriend(Long friendId) {
@@ -63,7 +68,31 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public String linkRequestedAccountWithBots(Long accountId, Pageable pageable) {
+    public List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto) {
+        Double accountLatitude = friendSearchDto.getLatitude();
+        Double accountLongitude = friendSearchDto.getLongitude();
+        Account loggedAccount = getLoggedAccount();
+
+        List<Account> sortedFriends = accountRepository.findFriendsByLocation(
+            loggedAccount.getId(), accountLatitude, accountLongitude);
+        if (sortedFriends.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return friendMapper.accountListToFriendDtoList(sortedFriends);
+    }
+
+    @Override
+    public String linkFriends(Long accountId, Pageable pageable) {
+        if (accountId != null) {
+            return linkRequestedAccountWithBots(accountId, pageable);
+        }
+
+        return linkAllAccountsWithBots(pageable);
+    }
+
+
+    private String linkRequestedAccountWithBots(Long accountId, Pageable pageable) {
         Account realAccount = getAccountById(accountId);
 
         Set<Account> botSet = getAccountsByAccountType(AccountType.BOT, pageable);
@@ -83,8 +112,8 @@ public class FriendServiceImpl implements FriendService {
         throw new FriendExistException(OperationConstant.FAILED);
     }
 
-    @Override
-    public String linkAllAccountsWithBots(Pageable pageable) {
+
+    private String linkAllAccountsWithBots(Pageable pageable) {
         Set<Account> realAccounts = getAccountsByAccountType(AccountType.REAL, pageable);
         if (realAccounts.isEmpty()) {
             throw new NoRealAccountsException(AccountConstant.ACCOUNTS_NOT_EXIST);

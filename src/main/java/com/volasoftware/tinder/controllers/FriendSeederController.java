@@ -7,7 +7,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -37,27 +36,19 @@ public class FriendSeederController {
             @ApiResponse(code = 400, message = "Invalid ID provided!"),
             @ApiResponse(code = 404, message = "Resource not found!")
         })
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<?> seedFriends(
-        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         @Valid
         @Min(0L)
-        @RequestParam(name = "id")
-        Optional<Long> accountId,
+        @RequestParam(required = false) Long accountId,
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
-        if (accountId.isEmpty()) {
-            return ResponseHandler.generateResponse(
-                AccountConstant.LINKED_ACCOUNTS_WITH_BOTS,
-                HttpStatus.OK,
-                friendService.linkAllAccountsWithBots(pageable));
-        }
 
         return ResponseHandler.generateResponse(
-            AccountConstant.LINKED_ACCOUNT_WITH_BOTS,
+            AccountConstant.LINKED_FRIENDS,
             HttpStatus.OK,
-            friendService.linkRequestedAccountWithBots(accountId.get(), pageable));
+            friendService.linkFriends(accountId, pageable));
     }
 }

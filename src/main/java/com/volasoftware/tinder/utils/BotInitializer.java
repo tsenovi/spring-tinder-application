@@ -14,6 +14,7 @@ import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,10 +49,12 @@ public class BotInitializer {
 
     @PostConstruct
     void initialize() {
-        Page<Account> botAccounts = accountRepository.findByAccountType(
-            AccountType.BOT,
-            PageRequest.of(0, 10)
-        );
+        setupBots();
+    }
+
+    private void setupBots() {
+        Page<Account> botAccounts = accountRepository.findByAccountType(AccountType.BOT,
+            PageRequest.of(0, 10));
 
         if (botAccounts == null || botAccounts.isEmpty()) {
             for (int i = 0; i < MAX_BOTS_COUNT; i++) {
