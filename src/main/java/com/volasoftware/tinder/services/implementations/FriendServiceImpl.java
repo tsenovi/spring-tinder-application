@@ -91,6 +91,17 @@ public class FriendServiceImpl implements FriendService {
         return linkAllAccountsWithBots(pageable);
     }
 
+    @Override
+    public FriendDto getFriendInfo(Long accountId) {
+        Account loggedAccount = getLoggedAccount();
+        Account friendAccount = getAccountById(accountId);
+        if (hasFriends(loggedAccount) && friendExist(loggedAccount, friendAccount)) {
+            return friendMapper.accountToFriendDto(friendAccount);
+        }
+
+        throw new FriendNotFoundException(AccountConstant.FRIEND_NOT_FOUND);
+    }
+
 
     private String linkRequestedAccountWithBots(Long accountId, Pageable pageable) {
         Account realAccount = getAccountById(accountId);

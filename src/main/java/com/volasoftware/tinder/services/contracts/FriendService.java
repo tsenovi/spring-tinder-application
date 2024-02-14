@@ -14,4 +14,6 @@ public interface FriendService {
     List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto);
 
     String linkFriends(Long accountId, Pageable pageable);
+
+    FriendDto getFriendInfo(Long accountId);
 }
