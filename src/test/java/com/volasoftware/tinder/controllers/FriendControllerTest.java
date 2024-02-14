@@ -5,7 +5,6 @@ import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.dtos.LocationDto;
-import com.volasoftware.tinder.exceptions.FriendNotFoundException;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import jakarta.validation.ConstraintViolationException;
@@ -87,7 +86,8 @@ public class FriendControllerTest {
         request.setLongitude(23.6);
 
         //when
-        when(friendService.sortFriendsByLocation(request)).thenThrow(ConstraintViolationException.class);
+        when(friendService.sortFriendsByLocation(request)).thenThrow(
+            ConstraintViolationException.class);
 
         //then
         assertThrows(ConstraintViolationException.class, () -> {
