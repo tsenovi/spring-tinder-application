@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,5 +42,21 @@ public class FriendController {
             AccountConstant.SORTED_ACCOUNTS_BY_LOCATION,
             HttpStatus.OK,
             friendService.sortFriendsByLocation(friendSearchDto));
+    }
+
+    @ApiOperation(value = "Get friend info", response = FriendDto.class)
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 200, message = "Success operation", response = FriendDto.class),
+            @ApiResponse(code = 401, message = "Unauthorized operation"),
+            @ApiResponse(code = 403, message = "Forbidden operation"),
+            @ApiResponse(code = 500, message = "Failed operation")
+        })
+    @GetMapping("/{id}")
+    public ResponseEntity<?> showFriendInfo(@Valid @PathVariable("id") Long accountId) {
+        return ResponseHandler.generateResponse(
+            AccountConstant.DETAILS,
+            HttpStatus.OK,
+            friendService.getFriendInfo(accountId));
     }
 }
