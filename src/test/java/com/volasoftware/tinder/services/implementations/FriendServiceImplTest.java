@@ -298,7 +298,8 @@ class FriendServiceImplTest {
         ArrayList<Account> friends = new ArrayList<>(friendsList);
         when(accountRepository.findOneByEmail(any())).thenReturn(
             Optional.ofNullable(loggedAccount));
-        when(friendMapper.accountListToFriendDtoList(friends)).thenReturn(expectedFriends);
+        when(accountRepository.findFriendsByLocation(loggedAccount.getId(),
+            friendSearchDto.getLatitude(), friendSearchDto.getLongitude())).thenReturn(friends);
 
         List<FriendDto> expectedFriendDtos = friendMapper.accountListToFriendDtoList(friends);
         List<FriendDto> sortedFriendDtos = friendService.sortFriendsByLocation(friendSearchDto);

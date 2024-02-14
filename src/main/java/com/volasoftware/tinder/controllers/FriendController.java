@@ -6,6 +6,7 @@ import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import io.swagger.annotations.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class FriendController {
     })
     @ApiImplicitParam(name = "friendSearchDto", value = "Friend search parameters",
         required = true, dataType = "FriendSearchDto")
-    public ResponseEntity<?> getFriends(@RequestBody FriendSearchDto friendSearchDto) {
+    public ResponseEntity<?> getFriends(@Valid @RequestBody FriendSearchDto friendSearchDto) {
 
         return ResponseHandler.generateResponse(
             AccountConstant.SORTED_ACCOUNTS_BY_LOCATION,

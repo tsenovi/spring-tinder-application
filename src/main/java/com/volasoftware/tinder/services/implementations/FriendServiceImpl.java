@@ -74,6 +74,9 @@ public class FriendServiceImpl implements FriendService {
 
         List<Account> sortedFriends = accountRepository.findFriendsByLocation(
             loggedAccount.getId(), accountLatitude, accountLongitude);
+        if (sortedFriends.isEmpty()) {
+            throw new FriendNotFoundException(AccountConstant.FRIEND_NOT_FOUND);
+        }
 
         return friendMapper.accountListToFriendDtoList(sortedFriends);
     }

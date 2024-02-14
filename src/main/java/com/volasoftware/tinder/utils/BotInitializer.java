@@ -47,34 +47,9 @@ public class BotInitializer {
 
     private final NameGenerator nameGenerator;
 
-    private final JdbcTemplate jdbcTemplate;
-
     @PostConstruct
     void initialize() {
         setupBots();
-    }
-
-    private void buildInitialAccounts() {
-        Account realAccount1 = createAccount("Ivan", "Tsenov", "ivan.t.tsenov@gmail.com",
-            "IVNtsn963", Gender.MALE, Role.USER, false, true, 18, null,
-            AccountType.REAL);
-        Account realAccount2 = createAccount("Toni", "Tsenova", "toni.k.tsenova@gmail.com",
-            "TNSLVtsn963", Gender.FEMALE, Role.USER, false, true, 18, null,
-            AccountType.REAL);
-
-        accountRepository.save(realAccount1);
-        accountRepository.save(realAccount2);
-    }
-
-    public Account createAccount(String firstName, String lastName, String email, String password,
-        Gender gender, Role role, boolean isLocked, boolean isVerified, int age, Location location,
-        AccountType accountType) {
-
-        return Account.builder().firstName(firstName).lastName(lastName).email(email)
-            .password(passwordEncoder.encode(password)).gender(gender)
-            .role(role).isLocked(isLocked).isVerified(isVerified).age(age)
-            .location(location)
-            .accountType(accountType).build();
     }
 
     private void setupBots() {
@@ -85,7 +60,6 @@ public class BotInitializer {
             for (int i = 0; i < MAX_BOTS_COUNT; i++) {
                 generateBotAccount();
             }
-            buildInitialAccounts();
         }
     }
 
