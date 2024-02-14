@@ -14,6 +14,7 @@ import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -75,7 +76,7 @@ public class FriendServiceImpl implements FriendService {
         List<Account> sortedFriends = accountRepository.findFriendsByLocation(
             loggedAccount.getId(), accountLatitude, accountLongitude);
         if (sortedFriends.isEmpty()) {
-            throw new FriendNotFoundException(AccountConstant.FRIEND_NOT_FOUND);
+            return Collections.emptyList();
         }
 
         return friendMapper.accountListToFriendDtoList(sortedFriends);

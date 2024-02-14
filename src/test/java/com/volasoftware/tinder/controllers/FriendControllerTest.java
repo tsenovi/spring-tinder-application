@@ -9,6 +9,7 @@ import com.volasoftware.tinder.exceptions.FriendNotFoundException;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import jakarta.validation.ConstraintViolationException;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,19 +59,24 @@ public class FriendControllerTest {
     }
 
     @Test
-    public void testGetFriendsWhenAccountDoesNotHaveFriendsThenExceptionThrown() {
+    public void testGetFriendsWhenAccountDoesNotHaveFriendsThenReturnEmptyList() {
         //given
         FriendSearchDto request = new FriendSearchDto();
         request.setLatitude(43.28333);
         request.setLongitude(23.6);
 
+        List<FriendDto> responseList = Collections.emptyList();
+        ResponseEntity<?> response = ResponseHandler.generateResponse(
+            AccountConstant.SORTED_ACCOUNTS_BY_LOCATION,
+            HttpStatus.OK,
+            responseList);
+
         //when
-        when(friendService.sortFriendsByLocation(request)).thenThrow(FriendNotFoundException.class);
+        when(friendService.sortFriendsByLocation(any())).thenReturn(responseList);
 
         //then
-        assertThrows(FriendNotFoundException.class, () -> {
-            friendController.getFriends(request);
-        });
+        ResponseEntity<?> result = friendController.getFriends(request);
+        assertEquals(response, result);
     }
 
     @Test
