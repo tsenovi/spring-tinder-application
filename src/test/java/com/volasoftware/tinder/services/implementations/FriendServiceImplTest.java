@@ -40,7 +40,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -324,13 +323,10 @@ class FriendServiceImplTest {
         friendDto.setFirstName("Jacob");
 
         //when
-        when(accountRepository.findOneByEmail(email)).thenReturn(Optional.of(loggedAccount));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.of(loggedAccount));
         when(accountRepository.findById(friendId)).thenReturn(Optional.of(friend));
         when(friendMapper.accountToFriendDto(friend)).thenReturn(friendDto);
-
-        // Set the security context
-        Authentication auth = new UsernamePasswordAuthenticationToken(email, null);
-        SecurityContextHolder.getContext().setAuthentication(auth);
 
         FriendDto result = friendService.getFriendInfo(friendId);
 
