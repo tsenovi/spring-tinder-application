@@ -186,7 +186,7 @@ public class FriendServiceImpl implements FriendService {
     }
 
     private boolean friendExist(Account loggedAccount, Account friendAccount) {
-        return loggedAccount.getFriends().stream()
+        return hasFriends(loggedAccount) && loggedAccount.getFriends().stream()
             .anyMatch(friend -> friend.getId().equals(friendAccount.getId()));
     }
 
