@@ -1,10 +1,7 @@
 package com.volasoftware.tinder.services.implementations;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,6 +40,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -306,6 +304,39 @@ class FriendServiceImplTest {
 
         //then
         assertEquals(expectedFriendDtos, sortedFriendDtos);
+    }
+
+    @Test
+    void testGetFriendInfoWhenFriendExistThenReturnFriendDto() {
+        //given
+        String email = "jacob@gmail.com";
+        Long friendId = 1L;
+
+        Account loggedAccount = new Account();
+        loggedAccount.setEmail(email);
+        loggedAccount.setFriends(new HashSet<>());
+
+        Account friend = new Account();
+        friend.setId(friendId);
+        loggedAccount.getFriends().add(friend);
+
+        FriendDto friendDto = new FriendDto();
+        friendDto.setFirstName("Jacob");
+
+        //when
+        when(accountRepository.findOneByEmail(email)).thenReturn(Optional.of(loggedAccount));
+        when(accountRepository.findById(friendId)).thenReturn(Optional.of(friend));
+        when(friendMapper.accountToFriendDto(friend)).thenReturn(friendDto);
+
+        // Set the security context
+        Authentication auth = new UsernamePasswordAuthenticationToken(email, null);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        FriendDto result = friendService.getFriendInfo(friendId);
+
+        //then
+        assertNotNull(result);
+        assertEquals(friendDto.getFirstName(), result.getFirstName());
     }
 
     private Account createAccountByType(Long id, AccountType type) {

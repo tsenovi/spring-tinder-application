@@ -5,6 +5,8 @@ import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.dtos.LocationDto;
+import com.volasoftware.tinder.exceptions.FriendNotFoundException;
+import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import jakarta.validation.ConstraintViolationException;
@@ -23,6 +25,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,6 +97,33 @@ public class FriendControllerTest {
         assertThrows(ConstraintViolationException.class, () -> {
             friendController.getFriends(request);
         });
+    }
+
+    @Test
+    public void testShowFriendInfoWhenFriendIsFoundThenSuccessfulOperation() {
+        Long accountId = 1L;
+        FriendDto friendDto = new FriendDto();
+        friendDto.setFirstName("Jacob");
+
+        ResponseEntity<?> expectedResponse = ResponseHandler.generateResponse(
+            AccountConstant.DETAILS,
+            HttpStatus.OK,
+            friendDto);
+
+        when(friendService.getFriendInfo(accountId)).thenReturn(friendDto);
+
+        ResponseEntity<?> actualResponse = friendController.showFriendInfo(accountId);
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    public void testShowFriendInfoWhenFriendIsNotFoundThenExceptionThrown() {
+        Long accountId = 1L;
+
+        when(friendService.getFriendInfo(accountId)).thenThrow(FriendNotFoundException.class);
+
+        assertThrows(FriendNotFoundException.class,
+            () -> friendController.showFriendInfo(accountId));
     }
 
     private List<FriendDto> getFriendDtos() {
