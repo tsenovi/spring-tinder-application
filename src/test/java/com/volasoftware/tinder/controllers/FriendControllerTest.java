@@ -6,7 +6,6 @@ import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.dtos.LocationDto;
 import com.volasoftware.tinder.exceptions.FriendNotFoundException;
-import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import jakarta.validation.ConstraintViolationException;
@@ -24,9 +23,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,12 +116,18 @@ public class FriendControllerTest {
 
     @Test
     public void testShowFriendInfoWhenFriendIsNotFoundThenExceptionThrown() {
+        //given
         Long accountId = 1L;
+        String expectedErrorMessage = "Friend not exist!";
 
-        when(friendService.getFriendInfo(accountId)).thenThrow(FriendNotFoundException.class);
+        //when
+        when(friendService.getFriendInfo(accountId)).thenThrow(
+            new FriendNotFoundException(AccountConstant.FRIEND_NOT_FOUND));
 
-        assertThrows(FriendNotFoundException.class,
+        //then
+        Exception exception = assertThrows(FriendNotFoundException.class,
             () -> friendController.showFriendInfo(accountId));
+        assertTrue(exception.getMessage().contains(expectedErrorMessage));
     }
 
     private List<FriendDto> getFriendDtos() {

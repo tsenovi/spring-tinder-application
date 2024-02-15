@@ -335,7 +335,6 @@ class FriendServiceImplTest {
         FriendDto result = friendService.getFriendInfo(friendId);
 
         //then
-        assertNotNull(result);
         assertEquals(friendDto.getFirstName(), result.getFirstName());
     }
 
