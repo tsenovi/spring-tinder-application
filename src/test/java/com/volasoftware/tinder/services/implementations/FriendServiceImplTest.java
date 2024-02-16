@@ -1,10 +1,7 @@
 package com.volasoftware.tinder.services.implementations;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -306,6 +303,35 @@ class FriendServiceImplTest {
 
         //then
         assertEquals(expectedFriendDtos, sortedFriendDtos);
+    }
+
+    @Test
+    void testGetFriendInfoWhenFriendExistThenReturnFriendDto() {
+        //given
+        String email = "jacob@gmail.com";
+        Long friendId = 1L;
+
+        Account loggedAccount = new Account();
+        loggedAccount.setEmail(email);
+        loggedAccount.setFriends(new HashSet<>());
+
+        Account friend = new Account();
+        friend.setId(friendId);
+        loggedAccount.getFriends().add(friend);
+
+        FriendDto friendDto = new FriendDto();
+        friendDto.setFirstName("Jacob");
+
+        //when
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.of(loggedAccount));
+        when(accountRepository.findById(friendId)).thenReturn(Optional.of(friend));
+        when(friendMapper.accountToFriendDto(friend)).thenReturn(friendDto);
+
+        FriendDto result = friendService.getFriendInfo(friendId);
+
+        //then
+        assertEquals(friendDto.getFirstName(), result.getFirstName());
     }
 
     private Account createAccountByType(Long id, AccountType type) {

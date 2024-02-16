@@ -59,7 +59,7 @@ public class FriendServiceImpl implements FriendService {
         Account loggedAccount = getLoggedAccount();
         Account friendAccount = getAccountById(friendId);
 
-        if (hasFriends(loggedAccount) && friendExist(loggedAccount, friendAccount)) {
+        if (friendExist(loggedAccount, friendAccount)) {
             loggedAccount.getFriends().remove(friendAccount);
             accountRepository.save(loggedAccount);
         } else {
@@ -89,6 +89,17 @@ public class FriendServiceImpl implements FriendService {
         }
 
         return linkAllAccountsWithBots(pageable);
+    }
+
+    @Override
+    public FriendDto getFriendInfo(Long accountId) {
+        Account loggedAccount = getLoggedAccount();
+        Account friendAccount = getAccountById(accountId);
+        if (friendExist(loggedAccount, friendAccount)) {
+            return friendMapper.accountToFriendDto(friendAccount);
+        }
+
+        throw new FriendNotFoundException(AccountConstant.FRIEND_NOT_FOUND);
     }
 
 
@@ -175,7 +186,8 @@ public class FriendServiceImpl implements FriendService {
     }
 
     private boolean friendExist(Account loggedAccount, Account friendAccount) {
-        return loggedAccount.getFriends().contains(friendAccount);
+        return hasFriends(loggedAccount) && loggedAccount.getFriends().stream()
+            .anyMatch(friend -> friend.getId().equals(friendAccount.getId()));
     }
 
     private Account getAccountById(Long id) {
