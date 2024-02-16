@@ -59,7 +59,7 @@ public class FriendServiceImpl implements FriendService {
         Account loggedAccount = getLoggedAccount();
         Account friendAccount = getAccountById(friendId);
 
-        if (hasFriends(loggedAccount) && friendExist(loggedAccount, friendAccount)) {
+        if (friendExist(loggedAccount, friendAccount)) {
             loggedAccount.getFriends().remove(friendAccount);
             accountRepository.save(loggedAccount);
         } else {
@@ -95,7 +95,7 @@ public class FriendServiceImpl implements FriendService {
     public FriendDto getFriendInfo(Long accountId) {
         Account loggedAccount = getLoggedAccount();
         Account friendAccount = getAccountById(accountId);
-        if (hasFriends(loggedAccount) && friendExist(loggedAccount, friendAccount)) {
+        if (friendExist(loggedAccount, friendAccount)) {
             return friendMapper.accountToFriendDto(friendAccount);
         }
 
