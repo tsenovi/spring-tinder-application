@@ -7,6 +7,7 @@ import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.dtos.RatingDto;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
+import com.volasoftware.tinder.services.implementations.RatingService;
 import io.swagger.annotations.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
