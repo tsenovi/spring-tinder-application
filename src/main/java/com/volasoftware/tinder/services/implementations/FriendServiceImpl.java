@@ -5,13 +5,12 @@ import com.volasoftware.tinder.constants.AccountType;
 import com.volasoftware.tinder.constants.OperationConstant;
 import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
-import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.FriendExistException;
 import com.volasoftware.tinder.exceptions.FriendNotFoundException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
 import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
-import com.volasoftware.tinder.repositories.AccountRepository;
+import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,19 +18,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class FriendServiceImpl implements FriendService {
 
-    private final AccountRepository accountRepository;
+    private final AuthenticationService authenticationService;
 
     private final Random random;
 
@@ -39,8 +34,8 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public void addFriend(Long friendId) {
-        Account loggedAccount = getLoggedAccount();
-        Account friendAccount = getAccountById(friendId);
+        Account loggedAccount = authenticationService.getLoggedAccount();
+        Account friendAccount = authenticationService.getAccountById(friendId);
 
         if (hasFriends(loggedAccount)) {
             if (friendExist(loggedAccount, friendAccount)) {
@@ -51,17 +46,17 @@ public class FriendServiceImpl implements FriendService {
         }
 
         loggedAccount.getFriends().add(friendAccount);
-        accountRepository.save(loggedAccount);
+        authenticationService.updateAccount(loggedAccount);
     }
 
     @Override
     public void removeFriend(Long friendId) {
-        Account loggedAccount = getLoggedAccount();
-        Account friendAccount = getAccountById(friendId);
+        Account loggedAccount = authenticationService.getLoggedAccount();
+        Account friendAccount = authenticationService.getAccountById(friendId);
 
         if (friendExist(loggedAccount, friendAccount)) {
             loggedAccount.getFriends().remove(friendAccount);
-            accountRepository.save(loggedAccount);
+            authenticationService.updateAccount(loggedAccount);
         } else {
             throw new FriendNotFoundException(AccountConstant.FRIEND_NOT_FOUND);
         }
@@ -71,10 +66,10 @@ public class FriendServiceImpl implements FriendService {
     public List<FriendDto> sortFriendsByLocation(FriendSearchDto friendSearchDto) {
         Double accountLatitude = friendSearchDto.getLatitude();
         Double accountLongitude = friendSearchDto.getLongitude();
-        Account loggedAccount = getLoggedAccount();
+        Account loggedAccount = authenticationService.getLoggedAccount();
 
-        List<Account> sortedFriends = accountRepository.findFriendsByLocation(
-            loggedAccount.getId(), accountLatitude, accountLongitude);
+        List<Account> sortedFriends = authenticationService.getFriendsByLocation(loggedAccount,
+            accountLatitude, accountLongitude);
         if (sortedFriends.isEmpty()) {
             return Collections.emptyList();
         }
@@ -93,8 +88,8 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public FriendDto getFriendInfo(Long accountId) {
-        Account loggedAccount = getLoggedAccount();
-        Account friendAccount = getAccountById(accountId);
+        Account loggedAccount = authenticationService.getLoggedAccount();
+        Account friendAccount = authenticationService.getAccountById(accountId);
         if (friendExist(loggedAccount, friendAccount)) {
             return friendMapper.accountToFriendDto(friendAccount);
         }
@@ -104,9 +99,10 @@ public class FriendServiceImpl implements FriendService {
 
 
     private String linkRequestedAccountWithBots(Long accountId, Pageable pageable) {
-        Account realAccount = getAccountById(accountId);
+        Account realAccount = authenticationService.getAccountById(accountId);
 
-        Set<Account> botSet = getAccountsByAccountType(AccountType.BOT, pageable);
+        Set<Account> botSet = authenticationService.getAccountsByType(AccountType.BOT,
+            pageable);
 
         int initialFriendsCount = getFriendsCount(realAccount);
         if (!hasFriends(realAccount)) {
@@ -125,12 +121,14 @@ public class FriendServiceImpl implements FriendService {
 
 
     private String linkAllAccountsWithBots(Pageable pageable) {
-        Set<Account> realAccounts = getAccountsByAccountType(AccountType.REAL, pageable);
+        Set<Account> realAccounts = authenticationService.getAccountsByType(AccountType.REAL,
+            pageable);
         if (realAccounts.isEmpty()) {
             throw new NoRealAccountsException(AccountConstant.ACCOUNTS_NOT_EXIST);
         }
 
-        Set<Account> botSet = getAccountsByAccountType(AccountType.BOT, pageable);
+        Set<Account> botSet = authenticationService.getAccountsByType(AccountType.BOT,
+            pageable);
 
         int initialFriendsCount = getFriendsCount(realAccounts);
         int finalFriendsCount = 0;
@@ -155,10 +153,7 @@ public class FriendServiceImpl implements FriendService {
     }
 
     private int getFriendsCount(Set<Account> realAccounts) {
-        return realAccounts
-            .stream()
-            .mapToInt(this::getFriendsCount)
-            .sum();
+        return realAccounts.stream().mapToInt(this::getFriendsCount).sum();
     }
 
     private Account addBotFriendsToExistingSet(Account account, Set<Account> botAccounts) {
@@ -169,16 +164,7 @@ public class FriendServiceImpl implements FriendService {
         botFriends.addAll(botAccountList.subList(0, randomBotsCount));
         account.setFriends(botFriends);
 
-        return accountRepository.save(account);
-    }
-
-    private Set<Account> getAccountsByAccountType(AccountType accountType, Pageable pageable) {
-
-        return Stream.iterate(pageable, Pageable::next)
-            .map(pageRequest -> accountRepository.findByAccountType(accountType, pageRequest))
-            .takeWhile(page -> page != null && page.hasContent())
-            .flatMap(page -> page.getContent().stream())
-            .collect(Collectors.toSet());
+        return authenticationService.updateAccount(account);
     }
 
     private boolean hasFriends(Account loggedAccount) {
@@ -188,20 +174,5 @@ public class FriendServiceImpl implements FriendService {
     private boolean friendExist(Account loggedAccount, Account friendAccount) {
         return hasFriends(loggedAccount) && loggedAccount.getFriends().stream()
             .anyMatch(friend -> friend.getId().equals(friendAccount.getId()));
-    }
-
-    private Account getAccountById(Long id) {
-        return accountRepository.findById(id).orElseThrow(
-            () -> new AccountNotFoundException(AccountConstant.NOT_FOUND)
-        );
-    }
-
-    private Account getLoggedAccount() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        return accountRepository.findOneByEmail(username).orElseThrow(
-            () -> new AccountNotFoundException(AccountConstant.NOT_FOUND)
-        );
     }
 }

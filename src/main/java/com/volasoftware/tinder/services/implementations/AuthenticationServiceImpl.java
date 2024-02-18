@@ -18,13 +18,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +76,44 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    public AccountDto getAccountByEmail(String email) {
+        Account account = findAccountByEmail(email);
+        return accountMapper.accountToAccountDto(account);
+    }
+
+    @Override
+    public List<Account> getFriendsByLocation(Account loggedAccount, Double accountLatitude,
+        Double accountLongitude) {
+        return accountRepository.findFriendsByLocation(
+            loggedAccount.getId(), accountLatitude, accountLongitude);
+    }
+
+    @Override
+    public Account getAccountById(Long id) {
+        return accountRepository.findById(id).orElseThrow(
+            () -> new AccountNotFoundException(AccountConstant.NOT_FOUND)
+        );
+    }
+
+    @Override
+    public Account getLoggedAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        return findAccountByEmail(username);
+    }
+
+    @Override
+    public Set<Account> getAccountsByType(AccountType accountType, Pageable pageable) {
+
+        return Stream.iterate(pageable, Pageable::next)
+            .map(pageRequest -> accountRepository.findByAccountType(accountType, pageRequest))
+            .takeWhile(page -> page != null && page.hasContent())
+            .flatMap(page -> page.getContent().stream())
+            .collect(Collectors.toSet());
+    }
+
+    @Override
     public AccountDto register(RegisterRequest registerRequest) {
         checkIfEmailIsValid(registerRequest.getEmail());
         checkIfEmailIsTaken(registerRequest.getEmail());
@@ -81,7 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setRole(Role.USER);
         account.setLocked(false);
         account.setVerified(false);
-        Account savedAccount = accountRepository.save(account);
+        Account savedAccount = updateAccount(account);
 
         VerificationToken verificationToken = verificationTokenService.generateToken(savedAccount);
         sendVerificationMail(registerRequest.getEmail(), verificationToken.getToken());
@@ -90,18 +133,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AccountDto getAccountByEmail(String email) {
-        Account account = accountRepository.findOneByEmail(email)
-            .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
-
-        return accountMapper.accountToAccountDto(account);
-    }
-
-    @Override
     public AccountDto verifyAccount(String token) {
         Account account = verificationTokenService.verifyToken(token);
         account.setVerified(true);
-        Account updatedAccount = accountRepository.save(account);
+        Account updatedAccount = updateAccount(account);
 
         return accountMapper.accountToAccountDto(updatedAccount);
     }
@@ -115,8 +150,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             )
         );
 
-        Account account = accountRepository.findOneByEmail(loginRequest.getEmail())
-            .orElseThrow(() -> new AccountNotFoundException(AccountConstant.NOT_FOUND));
+        Account account = findAccountByEmail(loginRequest.getEmail());
 
         if (!account.isVerified()) {
             throw new AccountNotVerifiedException(AccountConstant.NOT_VERIFIED);
@@ -137,7 +171,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setEmail(accountDto.getEmail());
         account.setGender(accountDto.getGender());
 
-        return accountMapper.accountToAccountDto(accountRepository.save(account));
+        return accountMapper.accountToAccountDto(updateAccount(account));
+    }
+
+    @Override
+    public Account updateAccount(Account account) {
+        return accountRepository.save(account);
     }
 
     @Override
@@ -152,7 +191,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         account.setPassword(passwordEncoder.encode(randomPassword));
-        Account savedAccount = accountRepository.save(account);
+        Account savedAccount = updateAccount(account);
 
         return accountMapper.accountToAccountDto(savedAccount);
     }
@@ -164,7 +203,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new EmailAlreadyVerifiedException(MailConstant.ALREADY_CONFIRMED);
         }
 
-        VerificationToken verificationToken = verificationTokenService.getVerificationToken(account);
+        VerificationToken verificationToken = verificationTokenService.getVerificationToken(
+            account);
         sendVerificationMail(emailDto.getEmail(), verificationToken.getToken());
 
         return emailDto;
