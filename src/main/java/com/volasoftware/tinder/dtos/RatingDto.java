@@ -24,5 +24,5 @@ public class RatingDto {
     @ApiModelProperty(value = "Rating value")
     @Min(value = 1, message = "Rating between 1 and 10")
     @Max(value = 10, message = "Rating between 1 and 10")
-    private int rating;
+    private Integer rating;
 }
