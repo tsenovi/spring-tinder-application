@@ -1,7 +1,6 @@
 package com.volasoftware.tinder.services.implementations;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,20 +10,18 @@ import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.constants.OperationConstant;
 import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
-import com.volasoftware.tinder.dtos.LocationDto;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.exceptions.FriendExistException;
 import com.volasoftware.tinder.exceptions.NoRealAccountsException;
 import com.volasoftware.tinder.mapper.FriendMapper;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.Location;
-import com.volasoftware.tinder.repositories.AccountRepository;
+import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import com.volasoftware.tinder.utils.BotInitializer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +34,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -56,7 +52,7 @@ class FriendServiceImplTest {
     public static final long LOGGED_ACCOUNT_ID = 1L;
 
     @MockBean
-    private AccountRepository accountRepository;
+    private AuthenticationService authenticationService;
 
     @MockBean
     private Random random;
@@ -82,7 +78,7 @@ class FriendServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        friendService = new FriendServiceImpl(accountRepository, random, friendMapper);
+        friendService = new FriendServiceImpl(authenticationService, random, friendMapper);
         createAccountWithFriends();
     }
 
@@ -96,13 +92,12 @@ class FriendServiceImplTest {
         friendAccount.setId(FRIEND_ID);
 
         when(authentication.getName()).thenReturn(USERNAME);
-        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.of(loggedAccount));
-        when(accountRepository.findById(FRIEND_ID)).thenReturn(
-            Optional.of(friendAccount));
+        when(authenticationService.getLoggedAccount()).thenReturn(loggedAccount);
+        when(authenticationService.getAccountById(FRIEND_ID)).thenReturn(friendAccount);
 
         friendService.addFriend(friendAccount.getId());
 
-        verify(accountRepository, times(1)).save(loggedAccount);
+        verify(authenticationService, times(1)).updateAccount(loggedAccount);
         assert (loggedAccount.getFriends().contains(friendAccount));
     }
 
@@ -117,20 +112,19 @@ class FriendServiceImplTest {
         loggedAccount.getFriends().add(friendAccount);
 
         when(authentication.getName()).thenReturn(USERNAME);
-        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.of(loggedAccount));
-        when(accountRepository.findById(FRIEND_ID)).thenReturn(
-            Optional.of(friendAccount));
+        when(authenticationService.getLoggedAccount()).thenReturn(loggedAccount);
+        when(authenticationService.getAccountById(FRIEND_ID)).thenReturn(friendAccount);
 
         friendService.removeFriend(friendAccount.getId());
 
-        verify(accountRepository, times(1)).save(loggedAccount);
+        verify(authenticationService, times(1)).updateAccount(loggedAccount);
         assert (!loggedAccount.getFriends().contains(friendAccount));
     }
 
     @Test
     void testAddFriendWhenLoggedAccountNotFoundThenThrowAccountNotFoundException() {
         when(authentication.getName()).thenReturn(USERNAME);
-        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.empty());
+        when(authenticationService.getLoggedAccount()).thenThrow(AccountNotFoundException.class);
 
         assertThrows(AccountNotFoundException.class, () -> friendService.addFriend(FRIEND_ID));
     }
@@ -140,8 +134,9 @@ class FriendServiceImplTest {
         Account loggedAccount = new Account();
 
         when(authentication.getName()).thenReturn(USERNAME);
-        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.of(loggedAccount));
-        when(accountRepository.findById(FRIEND_ID)).thenReturn(Optional.empty());
+        when(authenticationService.getLoggedAccount()).thenReturn(loggedAccount);
+        when(authenticationService.getAccountById(FRIEND_ID)).thenThrow(
+            AccountNotFoundException.class);
 
         assertThrows(AccountNotFoundException.class, () -> friendService.addFriend(FRIEND_ID));
     }
@@ -149,7 +144,7 @@ class FriendServiceImplTest {
     @Test
     void testRemoveFriendWhenLoggedAccountNotFoundThenThrowAccountNotFoundException() {
         when(authentication.getName()).thenReturn(USERNAME);
-        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.empty());
+        when(authenticationService.getLoggedAccount()).thenThrow(AccountNotFoundException.class);
 
         assertThrows(AccountNotFoundException.class, () -> friendService.removeFriend(FRIEND_ID));
     }
@@ -159,8 +154,9 @@ class FriendServiceImplTest {
         Account loggedAccount = new Account();
 
         when(authentication.getName()).thenReturn(USERNAME);
-        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.of(loggedAccount));
-        when(accountRepository.findById(FRIEND_ID)).thenReturn(Optional.empty());
+        when(authenticationService.getLoggedAccount()).thenReturn(loggedAccount);
+        when(authenticationService.getAccountById(FRIEND_ID)).thenThrow(
+            AccountNotFoundException.class);
 
         assertThrows(AccountNotFoundException.class, () -> friendService.removeFriend(FRIEND_ID));
     }
@@ -181,10 +177,9 @@ class FriendServiceImplTest {
         Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         //when
-        when(accountRepository.findById(realAccount.getId())).thenReturn(Optional.of(realAccount));
-        when(accountRepository.findByAccountType(AccountType.BOT, pageable)).thenReturn(
-            new PageImpl<>(new ArrayList<>(botSet)));
-        when(accountRepository.save(realAccount)).thenReturn(savedAccount);
+        when(authenticationService.getAccountById(realAccount.getId())).thenReturn(realAccount);
+        when(authenticationService.getAccountsByType(AccountType.BOT, pageable)).thenReturn(botSet);
+        when(authenticationService.updateAccount(realAccount)).thenReturn(savedAccount);
 
         // Act
         String result = friendService.linkFriends(realAccount.getId(), pageable);
@@ -210,10 +205,9 @@ class FriendServiceImplTest {
         Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         //when
-        when(accountRepository.findById(realAccount.getId())).thenReturn(Optional.of(realAccount));
-        when(accountRepository.findByAccountType(AccountType.BOT, pageable)).thenReturn(
-            new PageImpl<>(new ArrayList<>(botSet)));
-        when(accountRepository.save(realAccount)).thenReturn(realAccount);
+        when(authenticationService.getAccountById(realAccount.getId())).thenReturn(realAccount);
+        when(authenticationService.getAccountsByType(AccountType.BOT, pageable)).thenReturn(botSet);
+        when(authenticationService.updateAccount(realAccount)).thenReturn(realAccount);
 
         //then
         assertThrows(FriendExistException.class,
@@ -226,8 +220,8 @@ class FriendServiceImplTest {
         Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         //when
-        when(accountRepository.findByAccountType(AccountType.REAL, pageable)).thenReturn(
-            new PageImpl<>(new ArrayList<>()));
+        when(authenticationService.getAccountsByType(AccountType.REAL, pageable)).thenThrow(
+            NoRealAccountsException.class);
 
         //then
         assertThrows(NoRealAccountsException.class,
@@ -258,12 +252,11 @@ class FriendServiceImplTest {
         Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         //when
-        when(accountRepository.findByAccountType(AccountType.REAL, pageable)).thenReturn(
-            new PageImpl<>(new ArrayList<>(realAccountSet)));
-        when(accountRepository.findByAccountType(AccountType.BOT, pageable)).thenReturn(
-            new PageImpl<>(new ArrayList<>(botSet)));
-        when(accountRepository.save(realAccount1)).thenReturn(savedAccount1);
-        when(accountRepository.save(realAccount2)).thenReturn(savedAccount2);
+        when(authenticationService.getAccountsByType(AccountType.REAL, pageable)).thenReturn(
+            realAccountSet);
+        when(authenticationService.getAccountsByType(AccountType.BOT, pageable)).thenReturn(botSet);
+        when(authenticationService.updateAccount(realAccount1)).thenReturn(savedAccount1);
+        when(authenticationService.updateAccount(realAccount2)).thenReturn(savedAccount2);
 
         //then
         String result = friendService.linkFriends(null, pageable);
@@ -278,24 +271,11 @@ class FriendServiceImplTest {
         friendSearchDto.setLatitude(0.0);
         friendSearchDto.setLongitude(0.0);
 
-        List<FriendDto> expectedFriends = Arrays.asList(
-            FriendDto.builder().firstName("John").lastName("Doe")
-                .gender(Gender.MALE).age(25)
-                .locationDto(LocationDto.builder().latitude(10.0).longitude(10.0).build()).build(),
-            FriendDto.builder().firstName("Jane").lastName("Doe")
-                .gender(Gender.FEMALE).age(22)
-                .locationDto(LocationDto.builder().latitude(20.0).longitude(20.0).build()).build(),
-            FriendDto.builder().firstName("Alice").lastName("Doe")
-                .gender(Gender.OTHER).age(30)
-                .locationDto(LocationDto.builder().latitude(30.0).longitude(30.0).build()).build()
-        );
-
         //when
         List<Account> friendsList = Arrays.asList(friend1, friend2, friend3);
         ArrayList<Account> friends = new ArrayList<>(friendsList);
-        when(accountRepository.findOneByEmail(any())).thenReturn(
-            Optional.ofNullable(loggedAccount));
-        when(accountRepository.findFriendsByLocation(loggedAccount.getId(),
+        when(authenticationService.getLoggedAccount()).thenReturn(loggedAccount);
+        when(authenticationService.getFriendsByLocation(loggedAccount,
             friendSearchDto.getLatitude(), friendSearchDto.getLongitude())).thenReturn(friends);
 
         List<FriendDto> expectedFriendDtos = friendMapper.accountListToFriendDtoList(friends);
@@ -324,8 +304,8 @@ class FriendServiceImplTest {
 
         //when
         when(authentication.getName()).thenReturn(USERNAME);
-        when(accountRepository.findOneByEmail(USERNAME)).thenReturn(Optional.of(loggedAccount));
-        when(accountRepository.findById(friendId)).thenReturn(Optional.of(friend));
+        when(authenticationService.getLoggedAccount()).thenReturn(loggedAccount);
+        when(authenticationService.getAccountById(friendId)).thenReturn(friend);
         when(friendMapper.accountToFriendDto(friend)).thenReturn(friendDto);
 
         FriendDto result = friendService.getFriendInfo(friendId);
