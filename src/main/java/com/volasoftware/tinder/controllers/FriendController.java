@@ -1,6 +1,7 @@
 package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.constants.AccountConstant;
+import com.volasoftware.tinder.constants.RatingConstant;
 import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.dtos.RatingDto;
