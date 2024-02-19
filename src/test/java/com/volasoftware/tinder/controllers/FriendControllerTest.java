@@ -1,5 +1,6 @@
 package com.volasoftware.tinder.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.constants.Gender;
 import com.volasoftware.tinder.constants.RatingConstant;
@@ -7,43 +8,78 @@ import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.dtos.LocationDto;
 import com.volasoftware.tinder.dtos.RatingDto;
-import com.volasoftware.tinder.dtos.RatingResponseDto;
 import com.volasoftware.tinder.exceptions.FriendNotFoundException;
-import com.volasoftware.tinder.exceptions.RatingNotValidException;
+import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.Rating;
+import com.volasoftware.tinder.repositories.AccountRepository;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import com.volasoftware.tinder.services.contracts.RatingService;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Collections;
+import java.util.HashSet;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.runner.RunWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FriendControllerTest {
 
-    @InjectMocks
+    @Autowired
     private FriendController friendController;
 
-    @Mock
+    @Autowired
     private FriendService friendService;
 
-    @Mock
+    @Autowired
     private RatingService ratingService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    private Authentication authentication;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setup(WebApplicationContext webApplicationContext) {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        authentication = new UsernamePasswordAuthenticationToken("user", "password");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
 
     @Test
     public void testGetFriendsWhenGivenValidCoordinatesThenGettingListOfFriends() {
@@ -140,11 +176,24 @@ public class FriendControllerTest {
     }
 
     @Test
-    public void rateGivenValidRatingDtoWhenRateFriendThenSuccessfulOperation() {
+    public void rateGivenValidRatingDtoWhenRateFriendThenSuccessfulOperation() throws Exception {
         //given
         RatingDto ratingDto = new RatingDto();
         ratingDto.setFriendId(1L);
         ratingDto.setRating(5);
+
+        Account friendAccount = new Account();
+        friendAccount.setFirstName("Jacob");
+        friendAccount.setId(1L);
+        accountRepository.save(friendAccount);
+
+        Account account = new Account();
+        account.setId(2L);
+        account.setEmail("user");
+        account.setPassword(passwordEncoder.encode("password"));
+        account.setFriends(new HashSet<>());
+        account.getFriends().add(friendAccount);
+        accountRepository.save(account);
 
         FriendDto friendDto = new FriendDto();
         friendDto.setFirstName("Jacob");
@@ -152,20 +201,12 @@ public class FriendControllerTest {
         Rating rating = new Rating();
         rating.setRating(ratingDto.getRating());
 
-        RatingResponseDto ratingResponseDto = new RatingResponseDto(friendDto, rating.getRating());
-        ResponseEntity<?> expectedResponse = ResponseHandler.generateResponse(
-            RatingConstant.RATED_FRIEND,
-            HttpStatus.OK,
-            ratingResponseDto);
-
-        when(ratingService.rateFriend(ratingDto)).thenReturn(ratingResponseDto);
-
-        //when
-        ResponseEntity<?> actualResponse = friendController.rateFriend(ratingDto);
-
         //then
-        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
-        assertEquals(expectedResponse, actualResponse);
+        mockMvc.perform(post("/api/v1/friends/rate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(ratingDto)))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString(RatingConstant.RATED_FRIEND)));
     }
 
     @Test
@@ -173,18 +214,16 @@ public class FriendControllerTest {
         //given
         RatingDto ratingDto = new RatingDto();
         ratingDto.setFriendId(1L);
-        ratingDto.setRating(11); // Invalid rating
-        String expectedErrorMessage = RatingConstant.INVALID;
-
-        when(ratingService.rateFriend(ratingDto)).thenThrow(
-            new RatingNotValidException(RatingConstant.INVALID));
+        ratingDto.setRating(11);
 
         //when
-        RatingNotValidException actualException = assertThrows(
-            RatingNotValidException.class, () -> friendController.rateFriend(ratingDto));
+        Exception exception = assertThrows(ConstraintViolationException.class,
+            () -> friendController.rateFriend(ratingDto));
 
         //then
-        assertTrue(actualException.getMessage().contains(expectedErrorMessage));
+        String expectedMessage = "Rating between 1 and 10";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     private List<FriendDto> getFriendDtos() {

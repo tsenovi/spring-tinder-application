@@ -5,6 +5,5 @@ import com.volasoftware.tinder.dtos.RatingResponseDto;
 
 public interface RatingService {
 
-    //TODO
     RatingResponseDto rateFriend(RatingDto ratingDto);
 }

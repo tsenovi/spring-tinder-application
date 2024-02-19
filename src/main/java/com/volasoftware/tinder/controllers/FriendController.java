@@ -77,8 +77,7 @@ public class FriendController {
             @ApiResponse(code = 500, message = "Failed operation")
         })
     @PostMapping("/rate")
-    public ResponseEntity<?> rateFriend(
-        @RequestBody RatingDto ratingDto) {
+    public ResponseEntity<?> rateFriend(@Valid @RequestBody RatingDto ratingDto) {
         return ResponseHandler.generateResponse(
             RatingConstant.RATED_FRIEND,
             HttpStatus.OK,

@@ -2,6 +2,7 @@ package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.exceptions.*;
 import com.volasoftware.tinder.responses.ResponseHandler;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,8 @@ public class CustomErrorHandler extends ResponseEntityExceptionHandler {
         AccountNotVerifiedException.class,
         VerificationTokenExpiredException.class,
         AccountNotOwnerException.class,
-        RatingNotValidException.class
+        RatingNotValidException.class,
+        ConstraintViolationException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleBadRequestException(RuntimeException exception) {
