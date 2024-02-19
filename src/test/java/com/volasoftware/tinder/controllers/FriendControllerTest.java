@@ -2,12 +2,18 @@ package com.volasoftware.tinder.controllers;
 
 import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.constants.Gender;
+import com.volasoftware.tinder.constants.RatingConstant;
 import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
 import com.volasoftware.tinder.dtos.LocationDto;
+import com.volasoftware.tinder.dtos.RatingDto;
+import com.volasoftware.tinder.dtos.RatingResponseDto;
 import com.volasoftware.tinder.exceptions.FriendNotFoundException;
+import com.volasoftware.tinder.exceptions.RatingNotValidException;
+import com.volasoftware.tinder.models.Rating;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.FriendService;
+import com.volasoftware.tinder.services.contracts.RatingService;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
@@ -35,6 +41,9 @@ public class FriendControllerTest {
 
     @Mock
     private FriendService friendService;
+
+    @Mock
+    private RatingService ratingService;
 
     @Test
     public void testGetFriendsWhenGivenValidCoordinatesThenGettingListOfFriends() {
@@ -128,6 +137,54 @@ public class FriendControllerTest {
         Exception exception = assertThrows(FriendNotFoundException.class,
             () -> friendController.showFriendInfo(accountId));
         assertTrue(exception.getMessage().contains(expectedErrorMessage));
+    }
+
+    @Test
+    public void rateGivenValidRatingDtoWhenRateFriendThenSuccessfulOperation() {
+        //given
+        RatingDto ratingDto = new RatingDto();
+        ratingDto.setFriendId(1L);
+        ratingDto.setRating(5);
+
+        FriendDto friendDto = new FriendDto();
+        friendDto.setFirstName("Jacob");
+
+        Rating rating = new Rating();
+        rating.setRating(ratingDto.getRating());
+
+        RatingResponseDto ratingResponseDto = new RatingResponseDto(friendDto, rating.getRating());
+        ResponseEntity<?> expectedResponse = ResponseHandler.generateResponse(
+            RatingConstant.RATED_FRIEND,
+            HttpStatus.OK,
+            ratingResponseDto);
+
+        when(ratingService.rateFriend(ratingDto)).thenReturn(ratingResponseDto);
+
+        //when
+        ResponseEntity<?> actualResponse = friendController.rateFriend(ratingDto);
+
+        //then
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    public void testGivenInvalidRatingDtoWhenRateFriendThenFailedOperation() {
+        //given
+        RatingDto ratingDto = new RatingDto();
+        ratingDto.setFriendId(1L);
+        ratingDto.setRating(11); // Invalid rating
+        String expectedErrorMessage = RatingConstant.INVALID;
+
+        when(ratingService.rateFriend(ratingDto)).thenThrow(
+            new RatingNotValidException(RatingConstant.INVALID));
+
+        //when
+        RatingNotValidException actualException = assertThrows(
+            RatingNotValidException.class, () -> friendController.rateFriend(ratingDto));
+
+        //then
+        assertTrue(actualException.getMessage().contains(expectedErrorMessage));
     }
 
     private List<FriendDto> getFriendDtos() {
