@@ -44,6 +44,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
+    private final FriendService friendService;
+
     @Value("${server.base-url}")
     private String baseUrl;
 
@@ -74,6 +76,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Account account = verificationTokenService.verifyToken(token);
         account.setVerified(true);
         Account updatedAccount = accountService.updateAccount(account);
+
+        friendService.executeAsyncLinkFriends(updatedAccount.getId());
 
         return accountMapper.accountToAccountDto(updatedAccount);
     }
