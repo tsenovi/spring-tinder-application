@@ -21,6 +21,7 @@ import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.VerificationToken;
 import com.volasoftware.tinder.repositories.AccountRepository;
 
+import com.volasoftware.tinder.services.contracts.AccountService;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Arrays;
@@ -67,10 +68,13 @@ class AuthenticationServiceImplTest {
     private static final String WRONG_PASSWORD = "XXXXXXXXXXXXXXXXXXXXX";
 
     @MockBean
-    private AccountRepository authenticationRepository;
+    private AccountRepository accountRepository;
 
     @MockBean
     private VerificationTokenRepository verificationTokenRepository;
+
+    @MockBean
+    private AccountService accountService;
 
     @MockBean
     private VerificationTokenServiceImpl verificationTokenService;
@@ -89,8 +93,8 @@ class AuthenticationServiceImplTest {
     void testGettingAllAccountsWhenGivenListOfTwoThenExpectedTwoAccounts() {
         List<Account> accounts = getAccounts();
         Page<Account> accountsPage = new PageImpl<>(accounts);
-        when(authenticationRepository.findAll(pageRequest)).thenReturn(accountsPage);
-        List<AccountDto> result = authenticationService.getAccounts(pageRequest);
+        when(accountRepository.findAll(pageRequest)).thenReturn(accountsPage);
+        List<AccountDto> result = accountService.getAccounts(pageRequest);
 
         assertEquals(2, result.size());
     }
@@ -99,9 +103,9 @@ class AuthenticationServiceImplTest {
     void testGettingAllAccountsWhenGivenListOfAccountsThenExpectedListIsNotEmpty() {
         List<Account> accounts = getAccounts();
         Page<Account> accountsPage = new PageImpl<>(accounts);
-        when(authenticationRepository.findAll(pageRequest)).thenReturn(accountsPage);
+        when(accountRepository.findAll(pageRequest)).thenReturn(accountsPage);
 
-        List<AccountDto> result = authenticationService.getAccounts(pageRequest);
+        List<AccountDto> result = accountService.getAccounts(pageRequest);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
@@ -114,7 +118,7 @@ class AuthenticationServiceImplTest {
         Account account = generateAccount();
         VerificationToken verificationToken = generateVerificationToken(account);
 
-        when(authenticationRepository.save(any(Account.class))).thenReturn(account);
+        when(accountRepository.save(any(Account.class))).thenReturn(account);
         when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(
             verificationToken);
 
@@ -130,7 +134,7 @@ class AuthenticationServiceImplTest {
             Gender.MALE);
 
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-        when(authenticationRepository.save(captor.capture())).thenThrow(
+        when(accountRepository.save(captor.capture())).thenThrow(
             new EmailIsTakenException(MailConstant.ALREADY_TAKEN));
 
         Exception exception = assertThrows(EmailIsTakenException.class,
@@ -146,9 +150,9 @@ class AuthenticationServiceImplTest {
     void testGettingAccountByEmailWhenGivenEmailExistsThenReturnActualAccount() {
         Account account = getAccount("alex", "t", "alex@gmail.com", "password", Gender.MALE);
         String email = "alex@gmail.com";
-        given(authenticationRepository.findOneByEmail(email)).willReturn(Optional.of(account));
+        given(accountRepository.findOneByEmail(email)).willReturn(Optional.of(account));
 
-        AccountDto accountFoundByEmail = authenticationService.getAccountByEmail(email);
+        AccountDto accountFoundByEmail = accountService.getAccountDtoByEmail(email);
 
         assertEquals(email, accountFoundByEmail.getEmail());
     }
@@ -156,11 +160,11 @@ class AuthenticationServiceImplTest {
     @Test
     void testGettingAccountByEmailWhenGivenEmailNotExistsThenExceptionIsThrown() {
         String email = "phil@gmail.com";
-        given(authenticationRepository.findOneByEmail(email)).willThrow(
+        given(accountRepository.findOneByEmail(email)).willThrow(
             new AccountNotFoundException("Account was not found"));
 
         Exception exception = assertThrows(AccountNotFoundException.class,
-            () -> authenticationService.getAccountByEmail(email));
+            () -> accountService.getAccountDtoByEmail(email));
 
         String expectedMessage = "Account was not found";
         String actualMessage = exception.getMessage();
@@ -182,7 +186,7 @@ class AuthenticationServiceImplTest {
         Account account = generateAccount();
         account.setVerified(true);
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+        given(accountRepository.findOneByEmail(account.getEmail())).willReturn(
             Optional.of(account));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
             .thenThrow(new BadCredentialsException(AccountConstant.WRONG_PASSWORD));
@@ -196,7 +200,7 @@ class AuthenticationServiceImplTest {
         LoginRequest loginRequest = generateLoginRequest(EMAIL, PASSWORD);
         Account account = generateAccount();
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+        given(accountRepository.findOneByEmail(account.getEmail())).willReturn(
             Optional.of(account));
 
         assertThrows(AccountNotVerifiedException.class,
@@ -209,7 +213,7 @@ class AuthenticationServiceImplTest {
         Account account = generateAccount();
         account.setVerified(true);
 
-        given(authenticationRepository.findOneByEmail(account.getEmail())).willReturn(
+        given(accountRepository.findOneByEmail(account.getEmail())).willReturn(
             Optional.of(account));
 
         LoginResponse loginResponse = authenticationService.login(loginRequest);
@@ -228,7 +232,7 @@ class AuthenticationServiceImplTest {
         account.setEmail(EMAIL);
         account.setVerified(false);
 
-        when(authenticationRepository.findOneByEmail(EMAIL)).thenReturn(Optional.of(account));
+        when(accountRepository.findOneByEmail(EMAIL)).thenReturn(Optional.of(account));
         VerificationToken verificationToken = new VerificationToken();
         when(verificationTokenService.getVerificationToken(account)).thenReturn(verificationToken);
 
@@ -251,7 +255,7 @@ class AuthenticationServiceImplTest {
         account.setEmail(EMAIL);
         account.setVerified(true);
 
-        when(authenticationRepository.findOneByEmail(EMAIL)).thenReturn(Optional.of(account));
+        when(accountRepository.findOneByEmail(EMAIL)).thenReturn(Optional.of(account));
 
         //when
         Exception exception = assertThrows(EmailAlreadyVerifiedException.class,
