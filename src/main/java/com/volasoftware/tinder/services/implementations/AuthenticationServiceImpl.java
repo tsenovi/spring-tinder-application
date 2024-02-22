@@ -77,7 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         account.setVerified(true);
         Account updatedAccount = accountService.updateAccount(account);
 
-        friendService.executeAsyncLinkFriends(updatedAccount.getId());
+        friendService.linkFriendsAsync(updatedAccount.getId());
 
         return accountMapper.accountToAccountDto(updatedAccount);
     }

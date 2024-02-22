@@ -105,7 +105,7 @@ public class FriendServiceImpl implements FriendService {
 
     @Async
     @Override
-    public void executeAsyncLinkFriends(Long accountId) {
+    public void linkFriendsAsync(Long accountId) {
         try {
             Thread.sleep(THREAD_DELAY);
             Pageable pageable = createPageRequest();
