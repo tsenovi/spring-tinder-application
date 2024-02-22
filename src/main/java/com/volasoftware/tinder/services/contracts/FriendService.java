@@ -4,6 +4,7 @@ import com.volasoftware.tinder.dtos.FriendDto;
 import com.volasoftware.tinder.dtos.FriendSearchDto;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 
 public interface FriendService {
 
@@ -16,4 +17,7 @@ public interface FriendService {
     String linkFriends(Long accountId, Pageable pageable);
 
     FriendDto getFriendInfo(Long accountId);
+
+    @Async
+    void executeAsyncLinkFriends(Long accountId);
 }

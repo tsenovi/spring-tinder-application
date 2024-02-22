@@ -7,7 +7,7 @@ import com.volasoftware.tinder.exceptions.RatingNotValidException;
 import com.volasoftware.tinder.models.Rating;
 import com.volasoftware.tinder.repositories.RatingRepository;
 import com.volasoftware.tinder.dtos.RatingResponseDto;
-import com.volasoftware.tinder.services.contracts.AuthenticationService;
+import com.volasoftware.tinder.services.contracts.AccountService;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import com.volasoftware.tinder.services.contracts.RatingService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class RatingServiceImpl implements RatingService {
 
     private final FriendService friendService;
 
-    private final AuthenticationService authenticationService;
+    private final AccountService accountService;
 
     @Override
     public RatingResponseDto rateFriend(RatingDto ratingDto) {
@@ -44,8 +44,8 @@ public class RatingServiceImpl implements RatingService {
 
     private Rating getNewRating(RatingDto ratingDto) {
         Rating rating = new Rating();
-        rating.setAccount(authenticationService.getLoggedAccount());
-        rating.setFriend(authenticationService.getAccountById(ratingDto.getFriendId()));
+        rating.setAccount(accountService.getLoggedAccount());
+        rating.setFriend(accountService.getAccountById(ratingDto.getFriendId()));
         return rating;
     }
 

@@ -13,7 +13,6 @@ import com.volasoftware.tinder.exceptions.RatingNotValidException;
 import com.volasoftware.tinder.models.Account;
 import com.volasoftware.tinder.models.Rating;
 import com.volasoftware.tinder.repositories.RatingRepository;
-import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import com.volasoftware.tinder.services.contracts.FriendService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,7 @@ class RatingServiceImplTest {
     private RatingRepository ratingRepository;
 
     @MockBean
-    private AuthenticationService authenticationService;
+    private AccountServiceImpl accountService;
 
     @MockBean
     private FriendService friendService;
@@ -44,7 +43,7 @@ class RatingServiceImplTest {
     @BeforeEach
     public void setUp() {
         ratingService = new RatingServiceImpl(ratingRepository, friendService,
-            authenticationService);
+            accountService);
     }
 
     @Test
@@ -68,8 +67,8 @@ class RatingServiceImplTest {
 
         when(ratingRepository.findByFriendId(ratingDto.getFriendId())).thenReturn(
             Optional.of(rating));
-        when(authenticationService.getLoggedAccount()).thenReturn(loggedAccount);
-        when(authenticationService.getAccountById(anyLong())).thenReturn(friend);
+        when(accountService.getLoggedAccount()).thenReturn(loggedAccount);
+        when(accountService.getAccountById(anyLong())).thenReturn(friend);
         rating.setRating(ratingDto.getRating());
         when(ratingRepository.save(any(Rating.class))).thenReturn(rating);
         when(friendService.getFriendInfo(ratingDto.getFriendId())).thenReturn(friendDto);

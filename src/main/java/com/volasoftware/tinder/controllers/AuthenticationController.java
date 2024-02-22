@@ -7,6 +7,7 @@ import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.dtos.RegisterRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
+import com.volasoftware.tinder.services.contracts.AccountService;
 import java.security.Principal;
 import javax.validation.Valid;
 import io.swagger.annotations.Api;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+
+    private final AccountService accountService;
 
     @ApiOperation(value = "Register new account")
     @ApiResponses(
@@ -86,7 +89,7 @@ public class AuthenticationController {
         return ResponseHandler.generateResponse(
             AccountConstant.DETAILS,
             HttpStatus.OK,
-            authenticationService.getAccountByEmail(principal.getName()));
+            accountService.getAccountDtoByEmail(principal.getName()));
     }
 
     @ApiOperation(value = "Update Profile of logged Account")
