@@ -19,5 +19,5 @@ public interface FriendService {
     FriendDto getFriendInfo(Long accountId);
 
     @Async
-    void executeAsyncLinkFriends(Long accountId);
+    void linkFriendsAsync(Long accountId);
 }
