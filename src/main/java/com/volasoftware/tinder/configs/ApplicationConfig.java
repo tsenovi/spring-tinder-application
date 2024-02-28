@@ -3,7 +3,6 @@ package com.volasoftware.tinder.configs;
 import com.volasoftware.tinder.constants.AccountConstant;
 import com.volasoftware.tinder.exceptions.AccountNotFoundException;
 import com.volasoftware.tinder.repositories.AccountRepository;
-import java.security.SecureRandom;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
