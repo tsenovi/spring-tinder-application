@@ -9,7 +9,7 @@ import com.volasoftware.tinder.responses.ResponseHandler;
 import com.volasoftware.tinder.services.contracts.AuthenticationService;
 import com.volasoftware.tinder.services.contracts.AccountService;
 import java.security.Principal;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

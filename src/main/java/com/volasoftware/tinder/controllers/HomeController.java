@@ -1,6 +1,5 @@
 package com.volasoftware.tinder.controllers;
 
-import com.volasoftware.tinder.dtos.LoginRequest;
 import com.volasoftware.tinder.responses.ResponseHandler;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
